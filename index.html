@@ -621,6 +621,8 @@ function load(n) {
   stopClip(); clearCount(); closeLearn(); revealed = false; idx = n; updateDots();
   if (idx < 0) return show("title");
   if (idx > QUESTIONS.length) return show("more");
+  if (idx === QUESTIONS.length && !viaFinale) { idx = QUESTIONS.length; return openEvent(true); }
+  viaFinale = false;
   if (idx >= QUESTIONS.length) return show("finale", () => { hitGong($("finaleGong")); burst($("finaleGong"), 100); });
 
   const q = QUESTIONS[idx], num = String(idx + 1).padStart(2, "0");
@@ -843,11 +845,20 @@ let inRoesli = false;
 function openRoesli() { stopClip(); inRoesli = true; idx = -1; updateDots(); show("roesli"); }
 function closeRoesli() { tStop(); inRoesli = false; show("title"); }
 $("roesliBtn").onclick = openRoesli;
-let inEvent = false;
-function openEvent() { stopClip(); inEvent = true; idx = -1; updateDots(); show("event"); }
-function closeEvent() { inEvent = false; show("title"); }
-$("announceBtn").onclick = openEvent;
-$("eventLink2").onclick = openEvent;
+let inEvent = false, eventFromQuiz = false, viaFinale = false;
+function openEvent(fromQuiz) {
+  stopClip(); inEvent = true; eventFromQuiz = fromQuiz === true;
+  if (!eventFromQuiz) idx = -1; updateDots();
+  $("eventBack").textContent = eventFromQuiz ? "See what you heard today →" : "← Back to start";
+  show("event", () => eventFromQuiz && gongSound());
+}
+function closeEvent() {
+  inEvent = false;
+  if (eventFromQuiz) { eventFromQuiz = false; viaFinale = true; idx = QUESTIONS.length; return load(QUESTIONS.length); }
+  show("title");
+}
+$("announceBtn").onclick = () => openEvent();
+$("eventLink2").onclick = () => openEvent();
 $("eventBack").onclick = closeEvent;
 $("roesliBack").onclick = closeRoesli;
 $("mlist").innerHTML = MORE.map((m, i) => `<div><i style="background:${COLORS[i % 4]}"></i><span>${m.title}<em>${m.note}</em></span><small>${m.meta}</small></div>`).join("");
@@ -885,7 +896,7 @@ $("finaleGong").onclick = () => { hitGong($("finaleGong")); burst($("finaleGong"
 
 document.addEventListener("keydown", e => {
   const k = e.key.toLowerCase();
-  if (inEvent) { if (k === "arrowleft" || k === "escape") closeEvent(); else if (k === "f") fullscreen(); return; }
+  if (inEvent) { if (k === "arrowleft" || k === "escape" || k === "arrowright") closeEvent(); else if (k === "f") fullscreen(); return; }
   if (inRoesli) { if (k === "arrowleft" || k === "escape") closeRoesli(); else if (k === "1" || k === "2") tPlay(+k - 1); else if (k === "f") fullscreen(); return; }
   if (idx < 0 && k === "m") return openRoesli();
   if (idx < 0 && k === "e") return openEvent();
