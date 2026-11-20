@@ -210,12 +210,7 @@
     <h1 class="ltitle rise d1" id="ltitle"></h1>
     <p class="lsub rise d2" id="lsub"></p>
     <div class="cards rise d3" id="cards"></div>
-    <div class="listen rise d4">
-      <span class="label">Hear it</span>
-      <button class="inst" data-inst="gong">Gong</button>
-      <button class="inst" data-inst="saron">Saron</button>
-      <button class="inst" data-inst="bonang">Bonang</button>
-      <button class="inst" data-inst="kotekan">Kotekan</button>
+    <div class="listen rise d4" style="justify-content:flex-end">
       <button class="nextq" id="nextBtn">Next question →</button>
     </div>
   </div>
@@ -343,7 +338,7 @@ const LEARN = [
     cards: [
       { front: "Where?", back: "The Lost Kingdom level." },
       { front: "Why?", back: "Nintendo uses gamelan for jungle worlds." },
-      { front: "Try it", back: "Hit \"Kotekan\": two parts, one melody." }
+      { front: "Also in", back: "Zelda: Echoes of Wisdom and DK Bananza." }
     ]
   }
 ];
@@ -468,7 +463,8 @@ function reveal() {
   const wrong = tiles.map((_, i) => i).filter(i => i !== q.answer && !tiles[i].classList.contains("out"));
   wrong.forEach((i, n) => setTimeout(() => { tiles[i].classList.add("out"); tick(); }, 380 * (n + 1)));
   setTimeout(() => {
-    tiles[q.answer].classList.add("win"); gongSound(); burst(tiles[q.answer]); $("fact").classList.add("show");
+    tiles[q.answer].classList.add("win"); gongSound(); burst(tiles[q.answer]);
+    const at = idx; setTimeout(() => { if (idx === at && revealed && !onLearn) openLearn(); }, 2200);
   }, 380 * (wrong.length + 1) + 150);
 }
 
@@ -511,14 +507,6 @@ function openLearn() {
   show("learn");
 }
 function closeLearn() { onLearn = false; const v = document.querySelector("#media video"); v && v.pause(); }
-const INST = {
-  gong: () => gongSound(),
-  saron: () => [294, 330, 370, 440, 370, 330].forEach((f, i) => setTimeout(() => metal(f), i * 260)),
-  bonang: () => [523, 587, 659, 587].forEach((f, i) => setTimeout(() => partials([[f, 1], [f * 2, .4], [f * 3.1, .15]], .9, .45), i * 200)),
-  kotekan: () => { const A = [440, 0, 494, 0, 440, 0, 370, 0], B = [0, 330, 0, 370, 0, 330, 0, 294];
-    for (let r = 0; r < 2; r++) A.forEach((f, i) => setTimeout(() => metal(f || B[i]), (r * 8 + i) * 120)); }
-};
-document.querySelectorAll(".inst").forEach(b => b.onclick = () => INST[b.dataset.inst]());
 $("moreBtn").onclick = openLearn;
 $("nextBtn").onclick = () => { closeLearn(); load(idx + 1); };
 
