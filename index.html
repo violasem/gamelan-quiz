@@ -172,6 +172,9 @@
   .recap img { width: 100%; height: 13vh; object-fit: cover; display: block; }
   .recap span { display: block; padding: 1.2vh .9vw; font-size: 1.1vw; font-weight: 700; }
 
+  .brings { margin-top: 1vh; padding: 2.4vh 1.6vw; border-radius: 1.6vh; background: var(--c); color: var(--bg); }
+  .brings .label { display: block; color: var(--bg); opacity: .7; margin-bottom: 1vh; }
+  .brings p { font-size: 2.1vw; font-weight: 700; line-height: 1.25; letter-spacing: -.01em; }
   .g101 { margin-top: 3vh; padding: 2vh 1.4vw; border-left: .5vh solid var(--c); background: var(--panel); border-radius: 0 1.2vh 1.2vh 0; font-size: 1.6vw; font-weight: 600; line-height: 1.3; }
   .g101 .label { display: block; color: var(--c); margin-bottom: .6vh; }
 
@@ -189,11 +192,12 @@
   #learn { display: grid; grid-template-columns: 44vw 1fr; gap: 3.5vw; padding: 6vh 4.5vw 6vh; }
   .media { position: relative; border-radius: 2.4vh; overflow: hidden; background: var(--panel); }
   .media img, .media video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  .media video { object-fit: contain; background: #000; }
   .media .meta { position: absolute; left: 1.4vw; bottom: 2vh; display: flex; gap: .6vw; flex-wrap: wrap; }
   .chip { padding: .9vh 1vw; border-radius: 10vh; background: var(--bg); font-family: var(--mono); font-size: 1.5vh; letter-spacing: .08em; text-transform: uppercase; }
   .chip.hot { background: var(--c); color: var(--bg); }
   .info { display: flex; flex-direction: column; min-height: 0; }
-  .ltitle { font-size: 5.6vw; font-weight: 800; line-height: .9; letter-spacing: -.04em; margin: 1.5vh 0 2vh; }
+  .ltitle { font-size: 4.8vw; font-weight: 800; line-height: .9; letter-spacing: -.04em; margin: 1.2vh 0 2.4vh; }
   .lsub { font-size: 2.4vw; font-weight: 600; color: var(--muted); line-height: 1.35; max-width: 44vw; }
   .cards { display: flex; flex-direction: column; gap: 2vh; margin-top: 3.5vh; }
   .fl { display: grid; grid-template-columns: 1vw 13vw 1fr; gap: 1.4vw; align-items: baseline; font-size: 2vw; font-weight: 600; line-height: 1.3; }
@@ -256,7 +260,7 @@
   <div class="info">
     <p class="label rise d1" id="lkicker">Gamelan in the wild</p>
     <h1 class="ltitle rise d1" id="ltitle"></h1>
-    <p class="lsub rise d2" id="lsub"></p>
+    <div class="brings rise d2"><span class="label">What the gamelan brings</span><p id="lsub"></p></div>
     <div class="cards rise d3" id="cards"></div>
     <div class="g101 rise d4"><span class="label">Gamelan 101</span><span id="g101"></span></div>
     <div class="listen rise d4" style="justify-content:flex-end">
@@ -371,40 +375,36 @@ const LEARN = [
   {
     title: "Akira", g101: "Gamelan comes from Java and Bali, Indonesia. Most of it is bronze.", media: "images/akirameme.clip.mp4", volume: 0.15,
     chips: ["Anime", "1988"],
-    sub: "Anime's most famous gamelan soundtrack.",
+    brings: "It makes Tetsuo's power feel ancient and out of control, like a ritual, not just sci-fi. The clanging bronze builds tension like a heartbeat.",
     cards: [
       { front: "Who played it?", back: "Japanese music collective Geinoh Yamashirogumi." },
-      { front: "When?", back: "As Tetsuo's powers awaken." },
       { front: "Bonus", back: "It also uses kecak, the Balinese \"cak-cak\" chant." }
     ]
   },
   {
     title: "Zelda: Echoes of Wisdom", g101: "Gamelan uses two tunings: slendro (5 notes) and pelog (7 notes).", media: "images/zeldagif1.gif",
     chips: ["Game", "2024"],
-    sub: "Gamelan is the sound of the Deku Scrubs.",
+    brings: "It gives the Deku Scrubs their own culture. The bouncy, earthy tones make the swamp feel lived-in instead of just \"a jungle level.\"",
     cards: [
       { front: "Where?", back: "The swampy Faron region." },
-      { front: "Why?", back: "It represents the Deku Scrubs' culture." },
       { front: "Nintendo loves it", back: "Also in Mario Odyssey and DK Bananza." }
     ]
   },
   {
-    title: "Spirited Away", g101: "The big gong marks the end of each musical cycle.", media: "images/spritedaway.gif",
+    title: "Spirited Away", g101: "The big gong marks the end of each musical cycle.", media: "clips/spiritedaway-funfact-crop.mp4", volume: 0.6,
     chips: ["Anime", "2001"],
-    sub: "Listen for the bell-like, metallic tones.",
+    brings: "On the bridge to the bathhouse, the shimmering tones make the spirit world feel mysterious and sacred: calm, but a little uneasy.",
     cards: [
       { front: "Who?", back: "Composer Joe Hisaishi, Studio Ghibli." },
-      { front: "Sounds like", back: "The bronze keys of a saron." },
-      { front: "Gamelan twist", back: "No conductor. The drummer leads!" }
+      { front: "Sounds like", back: "The bronze keys of a saron." }
     ]
   },
   {
     title: "Super Mario Odyssey", g101: "In Balinese kotekan, two players each play half a melody that interlocks.", media: "images/mariogif2.gif",
     chips: ["Game", "2017"],
-    sub: "Gamelan in the Lost Kingdom jungle.",
+    brings: "It instantly says \"faraway tropical jungle.\" The bright, interlocking metal tones add a bouncy, adventurous energy.",
     cards: [
       { front: "Where?", back: "The Lost Kingdom level." },
-      { front: "Why?", back: "Nintendo uses gamelan for jungle worlds." },
       { front: "Also in", back: "Zelda: Echoes of Wisdom and DK Bananza." }
     ]
   }
@@ -639,7 +639,7 @@ function openLearn() {
   const vid = document.querySelector("#media video"); if (vid) vid.volume = L.volume ?? 0.3;
   $("lkicker").textContent = `Fun fact ${String(idx + 1).padStart(2, "0")} · Gamelan in the wild`;
   $("ltitle").textContent = L.title; $("g101").textContent = L.g101 || "";
-  $("lsub").textContent = L.sub;
+  $("lsub").textContent = L.brings;
   $("cards").innerHTML = L.cards.map(c => `<div class="fl"><i></i><b>${c.front}</b><span>${c.back}</span></div>`).join("");
   $("nextBtn").textContent = idx === QUESTIONS.length - 1 ? "Finish →" : "Next question →";
   updateDots(); show("learn");
