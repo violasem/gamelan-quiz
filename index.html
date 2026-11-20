@@ -147,6 +147,25 @@
   .hintbtn:hover { color: var(--text); }
   .hintbtn.open { color: var(--c); border-color: transparent; text-transform: none; letter-spacing: 0; font-size: 1.5vw; font-family: var(--head); font-weight: 600; }
 
+  .row { display: flex; align-items: center; gap: 2vw; margin-top: 3vh; white-space: nowrap; }
+  .row .hintbtn { margin-top: 0; }
+  .iso { display: inline-flex; align-items: center; gap: .7vw; font-family: var(--mono); font-size: 1vw; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+  .iso i { width: 3.2vh; height: 1.8vh; border-radius: 2vh; background: var(--line); position: relative; transition: background .3s; }
+  .iso i::after { content: ""; position: absolute; top: .25vh; left: .25vh; width: 1.3vh; height: 1.3vh; border-radius: 50%; background: var(--text); transition: transform .3s var(--ease); }
+  .iso.on { color: var(--b); }
+  .iso.on i { background: var(--b); }
+  .iso.on i::after { transform: translateX(1.4vh); }
+
+  /* more media */
+  #more { display: grid; grid-template-columns: 1fr 1.1fr; gap: 5vw; align-items: center; padding: 0 7vw; }
+  .mlist { display: flex; flex-direction: column; }
+  .mlist div { display: grid; grid-template-columns: 1vw 1fr auto; gap: 1.4vw; align-items: baseline; padding: 2vh 0; border-bottom: 1px solid var(--line); font-size: 2vw; font-weight: 700; }
+  .mlist div i { width: 1vw; height: 1vw; border-radius: 50%; align-self: center; }
+  .mlist div small { font-family: var(--mono); font-size: 1vw; font-weight: 400; color: var(--muted); letter-spacing: .06em; }
+  .mlist div em { font-style: normal; display: block; font-size: 1.15vw; font-weight: 500; color: var(--muted); margin-top: .4vh; }
+  .credit { margin-top: 5vh; font-size: 1.8vw; font-weight: 600; }
+  .credit span { color: var(--c); }
+
   /* recap */
   .recap { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1vw; margin-top: 5vh; max-width: 52vw; }
   .recap div { border-radius: 1.4vh; overflow: hidden; background: var(--panel); }
@@ -157,7 +176,7 @@
   .g101 .label { display: block; color: var(--c); margin-bottom: .6vh; }
 
   /* live music animation */
-  .viz { position: fixed; left: 0; width: 31vw; bottom: 0; height: 22vh; pointer-events: none; opacity: 0; transition: opacity .6s; z-index: 0; }
+  .viz { position: fixed; left: 0; width: 31vw; bottom: 0; height: 14vh; pointer-events: none; opacity: 0; transition: opacity .6s; z-index: 0; }
   body.playing .viz { opacity: 1; }
   .side { position: relative; }
   .side > *:not(.viz) { position: relative; z-index: 1; }
@@ -225,7 +244,7 @@
       <div class="bars" id="bars"></div>
     </div>
     <div class="cue" id="cue"><span class="label">Listen for</span><span id="cueText"></span></div>
-    <button class="hintbtn" id="hintBtn">Need a hint?</button>
+    <div class="row"><button class="hintbtn" id="hintBtn">Need a hint?</button><button class="iso" id="isoBtn"><i></i>Isolate gamelan</button></div>
     <div class="fact" id="fact"><span class="label">Fun fact</span><span id="factText"></span><br><button class="more" id="moreBtn">Learn more →</button></div>
   </aside>
   <div class="grid" id="grid"></div>
@@ -254,9 +273,21 @@
     <h1 class="big rise d2" style="margin-top:2.5vh">Now hear<br>it <span>live.</span></h1>
     <p class="label rise d3" style="margin-top:5vh">Today you heard gamelan in</p>
     <div class="recap rise d3" id="recap" style="margin-top:2vh"></div>
-    <button class="again rise d4" id="againBtn">Play again</button>
+    <button class="again rise d4" id="moreLink">More places to hear gamelan →</button>
   </div>
   <div class="gong rise d2" id="finaleGong"><i></i><i></i><i></i><i></i></div>
+</section>
+
+<!-- MORE MEDIA + CREDITS -->
+<section class="screen" id="more">
+  <div>
+    <div class="stripes rise"><i></i><i></i><i></i><i></i></div>
+    <p class="label rise d1">Homework (the fun kind)</p>
+    <h1 class="big rise d2" style="margin-top:2.5vh;font-size:7.5vw">Keep<br>listening<span>.</span></h1>
+    <p class="credit rise d3">Made with love by <span>Permias U-M</span><br>Terima kasih for playing!</p>
+    <button class="again rise d4" id="againBtn2">Play again</button>
+  </div>
+  <div class="mlist rise d2" id="mlist"></div>
 </section>
 
 <div class="bar" id="bar">
@@ -379,6 +410,16 @@ const LEARN = [
   }
 ];
 
+// ---------- ENDING: more places to hear gamelan ----------
+const MORE = [
+  { title: "Avatar", meta: "Film · 2009", note: "Balinese gamelan sounds on Pandora." },
+  { title: "Kena: Bridge of Spirits", meta: "Game · 2021", note: "Scored with Bali's Gamelan Çudamani." },
+  { title: "Sonic Unleashed", meta: "Game · 2008", note: "The Adabat level is all gamelan." },
+  { title: "Battlestar Galactica", meta: "TV · 2004", note: "Gamelan-style percussion in the score." },
+  { title: "Secret of Mana", meta: "Game · 1993", note: "Gamelan and kecak in the soundtrack." },
+  { title: "Debussy, \"Pagodes\"", meta: "Piano · 1903", note: "Inspired by gamelan he heard in Paris, 1889." }
+];
+
 const TROLL_LINES = ["Really?", "Be serious.", "Nice try.", "Absolutely not."];
 // ===============================================================
 
@@ -448,6 +489,7 @@ function load(n) {
   if (busy) return; busy = true; setTimeout(() => busy = false, 500);
   stopClip(); clearCount(); closeLearn(); revealed = false; idx = n; updateDots();
   if (idx < 0) return show("title");
+  if (idx > QUESTIONS.length) return show("more");
   if (idx >= QUESTIONS.length) return show("finale", () => { hitGong($("finaleGong")); burst($("finaleGong"), 100); });
 
   const q = QUESTIONS[idx], num = String(idx + 1).padStart(2, "0");
@@ -456,6 +498,7 @@ function load(n) {
   $("factText").textContent = q.fact; $("fact").classList.remove("show");
   $("cueText").textContent = q.listen || ""; $("cue").classList.remove("show");
   $("hintBtn").textContent = "Need a hint?"; $("hintBtn").classList.remove("open");
+  isoOn = false; $("isoBtn").classList.remove("on"); applyIso();
   $("ring").style.strokeDashoffset = RING_LEN;
   $("grid").innerHTML = q.options.map((o, i) => `
     <button class="tile" data-i="${i}">
@@ -478,13 +521,18 @@ function togglePlay() {
 }
 clip.addEventListener("ended", stopClip);
 // ---------- live music animation ----------
+let isoOn = false, isoHP, isoPeak, isoGain;
 let analyser, freq, srcNode, vizOn = false, lastNote = 0;
 function setupAnalyser() {
   if (analyser || location.protocol === "file:") return; // file:// would mute the audio, so use the fake animation there
   try {
     const c = ctx(); srcNode = c.createMediaElementSource(clip);
     analyser = c.createAnalyser(); analyser.fftSize = 128; analyser.smoothingTimeConstant = .8;
-    srcNode.connect(analyser).connect(c.destination); freq = new Uint8Array(analyser.frequencyBinCount);
+    isoHP = c.createBiquadFilter(); isoHP.type = "highpass"; isoHP.frequency.value = 10;
+    isoPeak = c.createBiquadFilter(); isoPeak.type = "peaking"; isoPeak.frequency.value = 2500; isoPeak.Q.value = .8; isoPeak.gain.value = 0;
+    isoGain = c.createGain(); isoGain.gain.value = 1;
+    srcNode.connect(isoHP).connect(isoPeak).connect(isoGain).connect(analyser).connect(c.destination);
+    applyIso(); freq = new Uint8Array(analyser.frequencyBinCount);
   } catch (e) { analyser = null; }
 }
 function spawnNote(level) {
@@ -515,6 +563,20 @@ function drawViz(t) {
   if (level > .35 && t - lastNote > 280) { spawnNote(level); lastNote = t; }
   requestAnimationFrame(drawViz);
 }
+function applyIso() {
+  if (!isoHP) return;
+  const t = ctx().currentTime;
+  isoHP.frequency.setTargetAtTime(isoOn ? 1100 : 10, t, .08);   // cut the low strings/bass/voices
+  isoPeak.gain.setTargetAtTime(isoOn ? 8 : 0, t, .08);         // boost the bronze shimmer
+  isoGain.gain.setTargetAtTime(isoOn ? 1.6 : 1, t, .08);       // make up lost volume
+}
+function toggleIso() {
+  if (idx < 0 || idx >= QUESTIONS.length || onLearn) return;
+  if (location.protocol === "file:") return toast("Isolate only works on the live website link");
+  setupAnalyser(); ctx().resume();
+  isoOn = !isoOn; $("isoBtn").classList.toggle("on", isoOn); applyIso(); tick();
+}
+$("isoBtn").onclick = toggleIso;
 clip.addEventListener("play", () => { setupAnalyser(); ctx().resume(); vizOn = true; document.body.classList.add("playing"); requestAnimationFrame(drawViz); });
 clip.addEventListener("pause", () => { vizOn = false; document.body.classList.remove("playing"); document.body.style.setProperty("--lvl", 0); });
 
@@ -584,6 +646,9 @@ function openLearn() {
 }
 function closeLearn() { onLearn = false; const v = document.querySelector("#media video"); v && v.pause(); }
 $("moreBtn").onclick = openLearn;
+$("mlist").innerHTML = MORE.map((m, i) => `<div><i style="background:${COLORS[i % 4]}"></i><span>${m.title}<em>${m.note}</em></span><small>${m.meta}</small></div>`).join("");
+$("moreLink").onclick = () => load(QUESTIONS.length + 1);
+$("againBtn2").onclick = () => load(0);
 function hint() {
   if (idx < 0 || idx >= QUESTIONS.length || onLearn) return;
   $("hintBtn").textContent = QUESTIONS[idx].hint; $("hintBtn").classList.add("open"); tick();
@@ -599,15 +664,14 @@ const ACT = {
   next: () => {
     if (onLearn) { closeLearn(); load(idx + 1); }
     else if (revealed && idx < QUESTIONS.length) openLearn();
-    else if (idx < QUESTIONS.length) load(idx + 1);
+    else if (idx <= QUESTIONS.length) load(idx + 1);
   },
-  play: togglePlay, count: countdown, hint, reveal, troll: () => troll(),
+  play: togglePlay, count: countdown, hint, iso: toggleIso, reveal, troll: () => troll(),
   gong: () => hitGong(document.querySelector(".screen.active .gong")), full: fullscreen
 };
 document.querySelectorAll(".bar button").forEach(b => b.onclick = () => ACT[b.dataset.act]());
 document.addEventListener("mousemove", e => document.body.classList.toggle("showbar", e.clientY > innerHeight * .9));
 $("startBtn").onclick = start;
-$("againBtn").onclick = () => load(0);
 $("playBtn").onclick = togglePlay;
 $("titleGong").onclick = () => hitGong($("titleGong"));
 $("finaleGong").onclick = () => { hitGong($("finaleGong")); burst($("finaleGong")); };
@@ -615,7 +679,7 @@ $("finaleGong").onclick = () => { hitGong($("finaleGong")); burst($("finaleGong"
 document.addEventListener("keydown", e => {
   const k = e.key.toLowerCase();
   if (idx >= 0 && idx < QUESTIONS.length && k.length === 1 && "abcd".includes(k)) return pick("abcd".indexOf(k));
-  const map = { " ": "play", arrowright: "next", n: "next", arrowleft: "back", r: "reveal", h: "hint", t: "troll", c: "count", g: "gong", f: "full" };
+  const map = { " ": "play", arrowright: "next", n: "next", arrowleft: "back", r: "reveal", h: "hint", i: "iso", t: "troll", c: "count", g: "gong", f: "full" };
   if (map[k]) { e.preventDefault(); ACT[map[k]](); }
 });
 </script>
