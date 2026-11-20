@@ -99,7 +99,7 @@
     opacity: 0; transform: translateY(-1vh); transition: all .4s var(--ease); }
   .tile.win .tag, .tile.nope .tag { opacity: 1; transform: none; }
 
-  .dots { position: fixed; top: 6.6vh; left: 20vw; display: flex; gap: .7vw; z-index: 3; transition: opacity .4s; }
+  .dots { opacity: 0; position: fixed; top: 6.6vh; left: 20vw; display: flex; gap: .7vw; z-index: 3; transition: opacity .4s; }
   .dots i { width: 1.6vw; height: .7vh; border-radius: 1vh; background: var(--line); transition: background .4s; }
   .dots i.done { background: var(--muted); } .dots i.now { background: var(--c); }
 
@@ -166,6 +166,38 @@
   .credit { margin-top: 5vh; font-size: 1.8vw; font-weight: 600; }
   .credit span { color: var(--c); }
 
+  .start.alt { background: transparent; color: var(--text); box-shadow: inset 0 0 0 2px var(--line); }
+  .start.alt:hover { background: var(--b); color: var(--bg); box-shadow: none; }
+
+  /* gamelan meets rock */
+  #roesli { display: flex; flex-direction: column; padding: 6vh 6vw 5vh; gap: 4vh; }
+  #roesli em { font-style: italic; }
+  .rtop { display: grid; grid-template-columns: 1.1fr 1fr; gap: 4vw; align-items: end; }
+  .why { background: var(--panel); border-radius: 2vh; padding: 2.6vh 2vw; }
+  .why .label { display: block; color: var(--b); margin-bottom: 1.4vh; }
+  .why ol { list-style: none; counter-reset: w; display: flex; flex-direction: column; gap: 1.2vh; }
+  .why li { counter-increment: w; position: relative; padding-left: 2.4vw; font-size: 1.45vw; line-height: 1.3; }
+  .why li::before { content: counter(w); position: absolute; left: 0; font-family: var(--mono); color: var(--c); }
+  .tracks { display: grid; grid-template-columns: 1fr 1fr; gap: 2vw; }
+  .track { position: relative; overflow: hidden; display: grid; grid-template-columns: auto 1fr; gap: 1.6vw; align-items: center; padding: 3vh 2vw; border-radius: 2.2vh; background: var(--panel); }
+  .track .tplay { width: 10vh; height: 10vh; border-radius: 50%; background: var(--text); color: var(--bg); display: grid; place-items: center; transition: transform .2s var(--ease); z-index: 1; }
+  .track .tplay:hover { transform: scale(1.06); }
+  .track .tplay svg { width: 3.2vh; height: 3.2vh; }
+  .track h3 { font-size: 2.6vw; font-weight: 800; letter-spacing: -.02em; line-height: 1; }
+  .track .tmeta { margin-top: .8vh; }
+  .track .tlisten { margin-top: 1.6vh; font-size: 1.3vw; font-weight: 600; line-height: 1.3; color: var(--muted); }
+  .track .tlisten b { color: var(--text); }
+  .track .prog { position: absolute; left: 0; bottom: 0; height: .7vh; width: 0; transition: width .2s linear; }
+  .track .tbars { position: absolute; right: 1.6vw; top: 2.4vh; display: flex; gap: .3vw; height: 4vh; align-items: flex-end; }
+  .track .tbars i { width: .4vw; height: 15%; border-radius: 1vw; background: var(--line); }
+  .track.on .tbars i { animation: eq .8s ease-in-out infinite; }
+  .track.on { box-shadow: inset 0 0 0 2px var(--c); }
+  .tiso { margin-top: 1.6vh; }
+  .rfoot { display: flex; align-items: flex-end; justify-content: space-between; gap: 4vw; margin-top: auto; }
+  .rfoot p { font-size: 1.35vw; line-height: 1.45; color: var(--muted); max-width: 62vw; }
+  .rfoot p b { color: var(--text); }
+  .rfoot .again { margin-top: 0; white-space: nowrap; }
+
   /* recap */
   .recap { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1vw; margin-top: 5vh; max-width: 52vw; }
   .recap div { border-radius: 1.4vh; overflow: hidden; background: var(--panel); }
@@ -192,7 +224,8 @@
   #learn { display: grid; grid-template-columns: 44vw 1fr; gap: 3.5vw; padding: 6vh 4.5vw 6vh; }
   .media { position: relative; border-radius: 2.4vh; overflow: hidden; background: var(--panel); }
   .media img, .media video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
-  .media video { object-fit: contain; background: #000; }
+  .media video { object-fit: cover; }
+  .media.vid { align-self: center; height: auto; }
   .media .meta { position: absolute; left: 1.4vw; bottom: 2vh; display: flex; gap: .6vw; flex-wrap: wrap; }
   .chip { padding: .9vh 1vw; border-radius: 10vh; background: var(--bg); font-family: var(--mono); font-size: 1.5vh; letter-spacing: .08em; text-transform: uppercase; }
   .chip.hot { background: var(--c); color: var(--bg); }
@@ -228,7 +261,7 @@
     <p class="label rise d1">Permias U-M · Gamelan Workshop</p>
     <h1 class="big rise d2" style="margin-top:2.5vh">Gamelan<br>in <span>pop</span><br>culture.</h1>
     <p class="lede rise d3">You've heard it before — you just didn't know it. Listen to the clip and guess where it's from.</p>
-    <button class="start rise d4" id="startBtn">Start the quiz <b>SPACE</b></button>
+    <div class="rise d4" style="display:flex;gap:1.4vw;align-items:center;flex-wrap:wrap"><button class="start" id="startBtn">Start the quiz <b>SPACE</b></button><button class="start alt" id="roesliBtn">Gamelan meets rock <b>M</b></button></div>
   </div>
   <div class="gong rise d2" id="titleGong"><i></i><i></i><i></i><i></i></div>
 </section>
@@ -280,6 +313,30 @@
     <button class="again rise d4" id="moreLink">More places to hear gamelan →</button>
   </div>
   <div class="gong rise d2" id="finaleGong"><i></i><i></i><i></i><i></i></div>
+</section>
+
+<!-- GAMELAN MEETS ROCK -->
+<section class="screen" id="roesli">
+  <div class="rtop">
+    <div>
+      <div class="stripes rise"><i></i><i></i><i></i><i></i></div>
+      <p class="label rise d1">Harry Roesli · <em>Titik Api</em> · 1976</p>
+      <h1 class="big rise d2" style="margin-top:2vh;font-size:6.4vw">Gamelan<br>meets <span>rock.</span></h1>
+    </div>
+    <div class="why rise d2">
+      <span class="label">Why it works</span>
+      <ol>
+        <li><b>Same scale.</b> Sundanese gamelan is pentatonic, and so is a lot of rock.</li>
+        <li><b>Different space.</b> Bronze rings up high while bass and drums sit low.</li>
+        <li><b>Taking turns.</b> One leads while the other holds the groove.</li>
+      </ol>
+    </div>
+  </div>
+  <div class="tracks rise d3" id="tracks"></div>
+  <div class="rfoot rise d4">
+    <p><b>Harry Roesli</b> was a composer from Bandung, West Java. On <em>Titik Api</em>, his band mixed rock guitar, keyboards and drums with Sundanese gamelan, angklung, fiddle and even bicycle bells.</p>
+    <button class="again" id="roesliBack">← Back to start</button>
+  </div>
 </section>
 
 <!-- MORE MEDIA + CREDITS -->
@@ -382,7 +439,7 @@ const LEARN = [
     ]
   },
   {
-    title: "Zelda: Echoes of Wisdom", g101: "Gamelan uses two tunings: slendro (5 notes) and pelog (7 notes).", media: "clips/zeldamusicfunfact.mp4", volume: 0.6,
+    title: "Zelda: Echoes of Wisdom", g101: "Gamelan uses two tunings: slendro (5 notes) and pelog (7 notes).", media: "clips/zelda-funfact.mp4", volume: 0.6,
     chips: ["Game", "2024"],
     brings: "In the Faron Temple, it gives the Deku Scrubs their own culture. The bouncy, earthy tones make the swamp feel lived-in instead of just \"a jungle level.\"",
     cards: [
@@ -391,7 +448,7 @@ const LEARN = [
     ]
   },
   {
-    title: "Spirited Away", g101: "The big gong marks the end of each musical cycle.", media: "clips/spiritedaway-funfact-crop.mp4", volume: 0.6,
+    title: "Spirited Away", g101: "The big gong marks the end of each musical cycle.", media: "clips/spiritedaway-funfact.mp4", volume: 0.6,
     chips: ["Anime", "2001"],
     brings: "On the bridge to the bathhouse, the shimmering tones make the spirit world feel mysterious and sacred: calm, but a little uneasy.",
     cards: [
@@ -400,7 +457,7 @@ const LEARN = [
     ]
   },
   {
-    title: "Super Mario Odyssey", g101: "In Balinese kotekan, two players each play half a melody that interlocks.", media: "clips/marioclip.mp4", volume: 0.6,
+    title: "Super Mario Odyssey", g101: "In Balinese kotekan, two players each play half a melody that interlocks.", media: "clips/mario-funfact.mp4", volume: 0.6,
     chips: ["Game", "2017"],
     brings: "It instantly says \"faraway tropical jungle.\" The bright, interlocking metal tones add a bouncy, adventurous energy.",
     cards: [
@@ -418,6 +475,14 @@ const MORE = [
   { title: "Battlestar Galactica", meta: "TV · 2004", note: "Gamelan-style percussion in the score." },
   { title: "Secret of Mana", meta: "Game · 1993", note: "Gamelan and kecak in the soundtrack." },
   { title: "Debussy, \"Pagodes\"", meta: "Piano · 1903", note: "Inspired by gamelan he heard in Paris, 1889." }
+];
+
+// ---------- GAMELAN MEETS ROCK (Harry Roesli, Titik Api) ----------
+const TRACKS = [
+  { title: "Kebo Jiro", meta: "Track 4 · the 13-minute epic", src: "clips/roesli-kebo-jiro.m4a",
+    listen: "<b>Listen for</b> the gamelan answering the rock band, then both locking into one groove." },
+  { title: "Sekar Jepun", meta: "Track 1 · album opener", src: "clips/roesli-sekar-jepun.m4a",
+    listen: "<b>Listen for</b> the bright bronze riding on top while the band keeps the low end steady." }
 ];
 
 const TROLL_LINES = ["Really?", "Be serious.", "Nice try.", "Absolutely not."];
@@ -636,7 +701,9 @@ function openLearn() {
       ? `<video src="${src}" autoplay loop playsinline></video>`
       : `<img src="${src}" alt="">`) +
     `<div class="meta">${L.chips.map((c, i) => `<span class="chip${i === 0 ? " hot" : ""}">${c}</span>`).join("")}</div>`;
-  const vid = document.querySelector("#media video"); if (vid) vid.volume = L.volume ?? 0.3;
+  const vid = document.querySelector("#media video");
+  $("media").classList.toggle("vid", !!vid); $("media").style.aspectRatio = "";
+  if (vid) { vid.volume = L.volume ?? 0.3; vid.onloadedmetadata = () => { $("media").style.aspectRatio = vid.videoWidth + " / " + vid.videoHeight; }; }
   $("lkicker").textContent = `Fun fact ${String(idx + 1).padStart(2, "0")} · Gamelan in the wild`;
   $("ltitle").textContent = L.title; $("ltitle").style.fontSize = L.title.length > 14 ? "3.6vw" : ""; $("g101").textContent = L.g101 || "";
   $("lsub").textContent = L.brings;
@@ -646,6 +713,72 @@ function openLearn() {
 }
 function closeLearn() { onLearn = false; const v = document.querySelector("#media video"); v && v.pause(); }
 $("moreBtn").onclick = openLearn;
+
+// --- Roesli section ---
+const tAudio = new Audio(); tAudio.preload = "auto";
+let tCur = -1, tGraph = null, tIso = false;
+const PLAY_SVG = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 4.5v15l13-7.5z"/></svg>';
+const PAUSE_SVG = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 4h4v16H6zM14 4h4v16h-4z"/></svg>';
+$("tracks").innerHTML = TRACKS.map((t, i) => `
+  <div class="track" data-i="${i}">
+    <button class="tplay">${PLAY_SVG}</button>
+    <div>
+      <h3>${t.title}</h3>
+      <p class="label tmeta">${t.meta}</p>
+      <p class="tlisten">${t.listen}</p>
+      <button class="iso tiso"><i></i>Isolate gamelan</button>
+    </div>
+    <div class="tbars">${"<i></i>".repeat(10)}</div>
+    <div class="prog" style="background:${COLORS[i ? 1 : 0]}"></div>
+  </div>`).join("");
+document.querySelectorAll(".track .tbars i").forEach((b, i) => b.style.animationDelay = (i * 97 % 500) / 1000 + "s");
+function tUI() {
+  document.querySelectorAll(".track").forEach((el, i) => {
+    const on = i === tCur && !tAudio.paused;
+    el.classList.toggle("on", on); el.querySelector(".tplay").innerHTML = on ? PAUSE_SVG : PLAY_SVG;
+    el.querySelector(".tiso").classList.toggle("on", tIso);
+  });
+}
+function tSetupGraph() {
+  if (tGraph || location.protocol === "file:") return;
+  try {
+    const c = ctx(), src = c.createMediaElementSource(tAudio);
+    const hp = c.createBiquadFilter(); hp.type = "highpass"; hp.frequency.value = 10;
+    const pk = c.createBiquadFilter(); pk.type = "peaking"; pk.frequency.value = 2500; pk.Q.value = .8; pk.gain.value = 0;
+    const g = c.createGain(); src.connect(hp).connect(pk).connect(g).connect(c.destination);
+    tGraph = { hp, pk, g };
+  } catch (e) { tGraph = null; }
+}
+function tApplyIso() {
+  if (!tGraph) return; const t = ctx().currentTime;
+  tGraph.hp.frequency.setTargetAtTime(tIso ? 1100 : 10, t, .08);
+  tGraph.pk.gain.setTargetAtTime(tIso ? 8 : 0, t, .08);
+  tGraph.g.gain.setTargetAtTime(tIso ? 1.6 : 1, t, .08);
+}
+function tPlay(i) {
+  tSetupGraph(); ctx().resume();
+  if (i !== tCur) { tCur = i; tAudio.src = TRACKS[i].src; document.querySelectorAll(".track .prog").forEach(p => p.style.width = 0); }
+  tAudio.paused ? tAudio.play().catch(() => toast("Couldn't play " + TRACKS[i].src)) : tAudio.pause();
+}
+function tStop() { tAudio.pause(); tUI(); }
+document.querySelectorAll(".track").forEach(el => {
+  const i = +el.dataset.i;
+  el.querySelector(".tplay").onclick = () => tPlay(i);
+  el.querySelector(".tiso").onclick = () => {
+    if (location.protocol === "file:") return toast("Isolate only works on the live website link");
+    tSetupGraph(); ctx().resume(); tIso = !tIso; tApplyIso(); tUI(); tick();
+  };
+});
+["play", "pause", "ended"].forEach(ev => tAudio.addEventListener(ev, tUI));
+tAudio.addEventListener("timeupdate", () => {
+  const el = document.querySelectorAll(".track .prog")[tCur];
+  if (el && tAudio.duration) el.style.width = (100 * tAudio.currentTime / tAudio.duration) + "%";
+});
+let inRoesli = false;
+function openRoesli() { stopClip(); inRoesli = true; idx = -1; updateDots(); show("roesli"); }
+function closeRoesli() { tStop(); inRoesli = false; show("title"); }
+$("roesliBtn").onclick = openRoesli;
+$("roesliBack").onclick = closeRoesli;
 $("mlist").innerHTML = MORE.map((m, i) => `<div><i style="background:${COLORS[i % 4]}"></i><span>${m.title}<em>${m.note}</em></span><small>${m.meta}</small></div>`).join("");
 $("moreLink").onclick = () => load(QUESTIONS.length + 1);
 $("againBtn2").onclick = () => load(0);
@@ -656,11 +789,11 @@ function hint() {
 $("hintBtn").onclick = hint;
 $("nextBtn").onclick = () => { closeLearn(); load(idx + 1); };
 
-function start() { hitGong($("titleGong")); setTimeout(() => load(0), 350); }
+function start() { if (inRoesli) closeRoesli(); hitGong($("titleGong")); setTimeout(() => load(0), 350); }
 const fullscreen = () => document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen();
 
 const ACT = {
-  back: () => { if (onLearn) { closeLearn(); show("question"); } else if (idx > -1) load(idx - 1); },
+  back: () => { if (inRoesli) return closeRoesli(); if (onLearn) { closeLearn(); show("question"); } else if (idx > -1) load(idx - 1); },
   next: () => {
     if (onLearn) { closeLearn(); load(idx + 1); }
     else if (revealed && idx < QUESTIONS.length) openLearn();
@@ -678,6 +811,8 @@ $("finaleGong").onclick = () => { hitGong($("finaleGong")); burst($("finaleGong"
 
 document.addEventListener("keydown", e => {
   const k = e.key.toLowerCase();
+  if (inRoesli) { if (k === "arrowleft" || k === "escape") closeRoesli(); else if (k === "1" || k === "2") tPlay(+k - 1); else if (k === "f") fullscreen(); return; }
+  if (idx < 0 && k === "m") return openRoesli();
   if (idx >= 0 && idx < QUESTIONS.length && k.length === 1 && "abcd".includes(k)) return pick("abcd".indexOf(k));
   const map = { " ": "play", arrowright: "next", n: "next", arrowleft: "back", r: "reveal", h: "hint", i: "iso", t: "troll", c: "count", g: "gong", f: "full" };
   if (map[k]) { e.preventDefault(); ACT[map[k]](); }
