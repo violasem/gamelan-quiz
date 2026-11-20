@@ -98,13 +98,20 @@
   .tag { position: absolute; top: 1.6vh; right: 1.2vw; padding: .8vh 1vw; border-radius: 10vh; font-family: var(--mono); font-size: 1.6vh; letter-spacing: .1em; text-transform: uppercase; background: var(--text); color: var(--bg);
     opacity: 0; transform: translateY(-1vh); transition: all .4s var(--ease); }
   .tile.win .tag { opacity: 1; transform: none; }
-  .wrongx { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1vh; background: rgba(255,107,74,.88); color: var(--bg); opacity: 0; transform: scale(1.15); transition: opacity .25s, transform .35s var(--ease); pointer-events: none; z-index: 2; }
-  .wrongx b { font-size: 16vh; line-height: .8; font-weight: 800; }
-  .wrongx em { font-style: normal; font-size: 2.6vw; font-weight: 800; letter-spacing: -.02em; }
-  .tile.wrong .wrongx { opacity: 1; transform: none; }
+  .stamp { position: absolute; top: 1.6vh; left: 1.2vw; width: 6vh; height: 6vh; border-radius: 50%; display: grid; place-items: center; background: var(--a); color: var(--bg); font-size: 3.4vh; font-weight: 800; z-index: 3;
+    transform: scale(0) rotate(-90deg); transition: transform .45s cubic-bezier(.34,1.8,.5,1); }
+  .bubble { position: absolute; left: calc(1.6vw + 6vh); right: 1.2vw; top: 1.6vh; padding: 1.4vh 1.2vw; border-radius: .3vh 1.4vh 1.4vh 1.4vh; background: var(--text); color: var(--bg); font-size: 1.6vw; font-weight: 700; line-height: 1.2; z-index: 3;
+    opacity: 0; transform: translateY(1.5vh) scale(.9); transform-origin: top left; transition: opacity .25s, transform .4s cubic-bezier(.34,1.6,.5,1); }
   .tile.wrong { cursor: default; }
-  .tile.wrong .cap { opacity: .4; }
-  .tile.out.wrong { opacity: .5; filter: none; }
+  .tile.wrong img { filter: grayscale(1) brightness(.55); transition: filter .4s; }
+  .tile.wrong .stamp { transform: scale(1) rotate(-8deg); }
+  .tile.wrong .bubble { opacity: 1; transform: none; }
+  .tile.wrong .cap { opacity: .55; text-decoration: line-through; text-decoration-thickness: .3vh; }
+  .tile.out.wrong { opacity: .45; filter: none; }
+  .tile.out.wrong .bubble { opacity: 0; }
+  .tile.trolled img { filter: none; animation: wiggle .6s ease-in-out 2; }
+  .tile.trolled .stamp { background: var(--d); }
+  @keyframes wiggle { 25% { transform: rotate(-3deg) scale(1.04); } 75% { transform: rotate(3deg) scale(1.04); } }
 
   .dots { opacity: 0; position: fixed; top: 6.6vh; left: 20vw; display: flex; gap: .7vw; z-index: 3; transition: opacity .4s; }
   .dots i { width: 1.6vw; height: .7vh; border-radius: 1vh; background: var(--line); transition: background .4s; }
@@ -370,7 +377,6 @@
 </div>
 
 <div class="count" id="count"><div id="countNum">10</div></div>
-<div class="troll" id="troll"><div><p class="label">You picked</p><h2 id="trollText">Really?</h2></div></div>
 <div class="toast" id="toast"></div>
 <div class="notes" id="notes"></div>
 
@@ -387,10 +393,10 @@ const QUESTIONS = [
     clip: "clips/akiramusic.mp4",
     listen: "Clanging bronze bars and a rising chant.", hint: "It's a movie, not a show.",
     options: [
-      { label: "Ghost in the Shell", img: "images/cowboyintheshell.gif" },
+      { label: "Ghost in the Shell", img: "images/cowboyintheshell.gif", no: "Right decade. Wrong cyberpunk." },
       { label: "Akira",              img: "images/akira.gif" },
-      { label: "Cowboy Bebop",       img: "images/cowboybepbop.gif" },
-      { label: "Your rice cooker when the rice is done", img: "images/ricecooker.jpeg" }
+      { label: "Cowboy Bebop",       img: "images/cowboybepbop.gif", no: "That's jazz, not bronze." },
+      { label: "Your rice cooker when the rice is done", img: "images/ricecooker.jpeg", no: "*beep* Rice is done. You are not." }
     ],
     answer: 1, troll: 3,
     fact: "In Akira (1988), gamelan plays as Tetsuo's psychic powers awaken. It was performed by the Japanese collective Geinoh Yamashirogumi."
@@ -400,9 +406,9 @@ const QUESTIONS = [
     listen: "Bell-like tones bouncing between two parts.", hint: "It's a video game.",
     options: [
       { label: "Zelda: Echoes of Wisdom", img: "images/zeldagif2.gif" },
-      { label: "Kirby",                   img: "images/Kirby Gif.gif" },
-      { label: "Minecraft",               img: "images/minecraft.jpeg" },
-      { label: "Your alarm on a Monday",  img: "images/alarm.jpeg" }
+      { label: "Kirby",                   img: "images/Kirby Gif.gif", no: "Too round. Too pink." },
+      { label: "Minecraft",               img: "images/minecraft.jpeg", no: "That would be a calm piano." },
+      { label: "Your alarm on a Monday",  img: "images/alarm.jpeg", no: "Snoozed. Try again." }
     ],
     answer: 0, troll: 3,
     fact: "In Zelda: Echoes of Wisdom, gamelan is the sound of the Faron region and the Deku Scrubs who live there."
@@ -411,10 +417,10 @@ const QUESTIONS = [
     clip: "clips/ghibli.mp4",
     listen: "Metallic, shimmering tones under the melody.", hint: "It won an Oscar.",
     options: [
-      { label: "My Neighbor Totoro",      img: "images/totoro.gif" },
+      { label: "My Neighbor Totoro",      img: "images/totoro.gif", no: "Right studio. Wrong spirit." },
       { label: "Spirited Away",           img: "images/spritedaway.gif" },
-      { label: "Princess Mononoke",       img: "images/princessmonokune.gif" },
-      { label: "Indomie cooking at 3 AM", img: "images/indomie.jpeg" }
+      { label: "Princess Mononoke",       img: "images/princessmonokune.gif", no: "Right studio. Wrong forest." },
+      { label: "Indomie cooking at 3 AM", img: "images/indomie.jpeg", no: "Tempting. Still no." }
     ],
     answer: 1, troll: 3,
     fact: "Spirited Away (Studio Ghibli, 2001). Listen for the metallic, bell-like tones."
@@ -424,9 +430,9 @@ const QUESTIONS = [
     listen: "Gongs and bright metal keys in a jungle groove.", hint: "You've probably played it.",
     options: [
       { label: "Super Mario Odyssey", img: "images/mariogif.gif" },
-      { label: "Animal Crossing",     img: "images/animalcrossing.jpeg" },
-      { label: "Pokémon",             img: "images/pokemon.gif" },
-      { label: "The Diag squirrels forming a band", img: "images/squirell.jpeg" }
+      { label: "Animal Crossing",     img: "images/animalcrossing.jpeg", no: "Too chill for this." },
+      { label: "Pokémon",             img: "images/pokemon.gif", no: "Gotta guess 'em all." },
+      { label: "The Diag squirrels forming a band", img: "images/squirell.jpeg", no: "The squirrels are honored. Still no." }
     ],
     answer: 0, troll: 3,
     fact: "Super Mario Odyssey's Lost Kingdom. Nintendo often reaches for gamelan in its jungle worlds."
@@ -492,8 +498,6 @@ const TRACKS = [
     listen: "<b>Listen for</b> the bright bronze riding on top while the band keeps the low end steady." }
 ];
 
-const WRONG_LINES = ["Not this one.", "Close, but no.", "Wrong universe.", "Respectfully, no.", "Try again!", "Plot twist: no."];
-let wrongN = 0;
 const answered = new Set();
 
 const TROLL_LINES = ["Really?", "Be serious.", "Nice try.", "Absolutely not."];
@@ -527,6 +531,7 @@ function blip(f1, f2, dur, type = "triangle", vol = .35) {
 }
 const tick = () => blip(220, 80, .12);
 const bonk = () => blip(300, 60, .4, "square", .2);
+const boing = () => { blip(180, 720, .18, "sine", .3); setTimeout(() => blip(720, 160, .35, "sine", .25), 180); };
 
 function hitGong(el) {
   gongSound();
@@ -579,7 +584,7 @@ function load(n) {
   $("grid").innerHTML = q.options.map((o, i) => `
     <button class="tile" data-i="${i}">
       <img src="${encodeURI(o.img)}" alt="${o.label}">
-      <span class="tag">${i === q.answer ? "Correct" : ""}</span><span class="wrongx"><b>✕</b><em></em></span>
+      <span class="tag">${i === q.answer ? "Correct" : ""}</span><span class="stamp">✕</span><span class="bubble">${o.no || "Not this one."}</span>
       <span class="cap"><span class="key">${"ABCD"[i]}</span>${o.label}</span>
     </button>`).join("");
   document.querySelectorAll(".tile").forEach(t => t.onclick = () => pick(+t.dataset.i));
@@ -666,8 +671,7 @@ function pick(i) {
   if (i === q.troll) return troll(t);
   if (i === q.answer) return reveal();
   if (t.classList.contains("wrong")) return;
-  bonk(); setTimeout(bonk, 140);
-  t.querySelector(".wrongx em").textContent = WRONG_LINES[wrongN++ % WRONG_LINES.length];
+  bonk();
   t.classList.add("wrong", "nope");
 }
 
@@ -684,13 +688,11 @@ function reveal() {
 }
 
 function troll(tile) {
-  if (idx < 0 || idx >= QUESTIONS.length) return;
-  bonk(); setTimeout(bonk, 160);
+  if (idx < 0 || idx >= QUESTIONS.length || revealed) return;
   const t = tile || document.querySelectorAll(".tile")[QUESTIONS[idx].troll];
-  $("trollText").textContent = TROLL_LINES[Math.floor(Math.random() * TROLL_LINES.length)];
-  document.body.classList.remove("shake"); void document.body.offsetWidth; document.body.classList.add("shake");
-  $("troll").classList.add("show");
-  setTimeout(() => { $("troll").classList.remove("show"); if (t && !revealed) { t.classList.add("nope"); setTimeout(() => t.classList.add("out"), 450); } }, 1700);
+  if (!t || t.classList.contains("wrong")) return;
+  boing();
+  t.classList.add("wrong", "trolled");
 }
 
 function clearCount() { clearInterval(cdTimer); cdTimer = null; $("count").classList.remove("show"); }
