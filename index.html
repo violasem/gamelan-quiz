@@ -8,264 +8,423 @@
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@700;900&family=Inter:wght@500;700;800&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #140d08;
-    --bg2: #2a1a0e;
-    --gold: #e8b04a;
-    --gold-soft: #f6d58e;
-    --cream: #fbf1dd;
+    --bg: #140d08; --bg2: #2a1a0e;
+    --gold: #e8b04a; --gold-soft: #f6d58e; --cream: #fbf1dd;
     --a: #d94f3d; --b: #3d8bd9; --c: #e8b04a; --d: #4caf6e;
+    --ease: cubic-bezier(.22, 1, .36, 1);
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   html, body { height: 100%; overflow: hidden; }
   body {
-    font-family: 'Inter', sans-serif;
-    color: var(--cream);
+    font-family: 'Inter', sans-serif; color: var(--cream);
     background: radial-gradient(ellipse at center, var(--bg2) 0%, var(--bg) 75%);
     user-select: none;
   }
-  .screen { position: absolute; inset: 0; display: none; flex-direction: column; align-items: center; justify-content: center; padding: 4vh 5vw; text-align: center; }
-  .screen.active { display: flex; }
-
-  /* batik-ish border pattern */
   body::before {
     content: ""; position: fixed; inset: 0; pointer-events: none;
     background:
       repeating-linear-gradient(45deg, rgba(232,176,74,.06) 0 2px, transparent 2px 22px),
       repeating-linear-gradient(-45deg, rgba(232,176,74,.06) 0 2px, transparent 2px 22px);
-    mask: linear-gradient(#000 0 6vh, transparent 6vh calc(100% - 6vh), #000 calc(100% - 6vh));
+    mask: linear-gradient(#000 0 5vh, transparent 5vh calc(100% - 5vh), #000 calc(100% - 5vh));
   }
+  button { font: inherit; color: inherit; border: none; background: none; cursor: pointer; }
+
+  /* floating music notes in the background */
+  .note { position: fixed; bottom: -6vh; font-size: 4vh; color: var(--gold); opacity: 0; pointer-events: none; z-index: 0; animation: floatUp linear forwards; }
+  @keyframes floatUp { 10% { opacity: .35; } 90% { opacity: .25; } to { transform: translateY(-115vh) rotate(25deg); opacity: 0; } }
+
+  /* screens with smooth transitions */
+  .screen {
+    position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center;
+    padding: 4vh 4vw; text-align: center; z-index: 1;
+    opacity: 0; visibility: hidden; transform: translateY(4vh) scale(.98);
+    transition: opacity .6s var(--ease), transform .6s var(--ease), visibility 0s .6s;
+  }
+  .screen.active { opacity: 1; visibility: visible; transform: none; transition: opacity .6s var(--ease), transform .6s var(--ease), visibility 0s; }
+  .screen.leaving { opacity: 0; transform: translateY(-4vh) scale(.98); }
 
   h1 { font-family: 'Fraunces', serif; font-weight: 900; font-size: 8vw; line-height: 1; color: var(--gold); text-shadow: 0 .5vw 0 #6b3f12; }
-  .sub { font-size: 2.6vw; margin-top: 3vh; color: var(--gold-soft); }
-  .hint { position: fixed; bottom: 2vh; left: 0; right: 0; font-size: 1.2vw; opacity: .45; }
+  .sub { font-size: 2.4vw; margin-top: 2.5vh; color: var(--gold-soft); }
 
-  /* gong */
-  .gong { width: 22vh; height: 22vh; border-radius: 50%; margin-bottom: 4vh;
-    background: radial-gradient(circle at 50% 50%, #f6d58e 0 12%, #c98a2b 13% 16%, #e8b04a 17% 55%, #a86b1e 56% 60%, #e8b04a 61% 88%, #6b3f12 89%);
-    box-shadow: 0 0 6vh rgba(232,176,74,.35); }
-  .gong.ring { animation: ring .12s ease-in-out infinite alternate; }
-  @keyframes ring { from { transform: rotate(-3deg) scale(1); } to { transform: rotate(3deg) scale(1.04); } }
+  .gong {
+    width: 24vh; height: 24vh; border-radius: 50%; margin-bottom: 4vh; cursor: pointer;
+    background: radial-gradient(circle, #f6d58e 0 12%, #c98a2b 13% 16%, #e8b04a 17% 55%, #a86b1e 56% 60%, #e8b04a 61% 88%, #6b3f12 89%);
+    box-shadow: 0 0 6vh rgba(232,176,74,.35); transition: transform .2s;
+    animation: breathe 3s ease-in-out infinite;
+  }
+  .gong:hover { transform: scale(1.05); }
+  .gong.hit { animation: wobble .5s ease-out; }
+  @keyframes breathe { 50% { box-shadow: 0 0 10vh rgba(232,176,74,.6); } }
+  @keyframes wobble { 20% { transform: rotate(-8deg) scale(1.1); } 40% { transform: rotate(6deg); } 60% { transform: rotate(-4deg); } 80% { transform: rotate(2deg); } }
+  .ripple { position: fixed; border: .5vh solid var(--gold); border-radius: 50%; pointer-events: none; z-index: 20; animation: ripple 1.2s ease-out forwards; }
+  @keyframes ripple { from { width: 0; height: 0; opacity: .9; } to { width: 90vh; height: 90vh; opacity: 0; } }
+
+  .bigbtn {
+    margin-top: 4vh; padding: 2vh 5vw; border-radius: 10vh; font-size: 2.6vw; font-weight: 800;
+    background: var(--gold); color: #2a1a0e; box-shadow: 0 .8vh 0 #8a5a18; transition: transform .15s, box-shadow .15s;
+  }
+  .bigbtn:hover { transform: translateY(-.4vh); }
+  .bigbtn:active { transform: translateY(.6vh); box-shadow: 0 .2vh 0 #8a5a18; }
+
+  /* progress gongs */
+  .progress { position: fixed; top: 2.5vh; left: 50%; transform: translateX(-50%); display: flex; gap: 1.2vw; z-index: 3; transition: opacity .5s; }
+  .progress span { width: 3vh; height: 3vh; border-radius: 50%; border: .35vh solid var(--gold); opacity: .4; transition: all .5s var(--ease); }
+  .progress span.done { background: var(--gold); opacity: 1; }
+  .progress span.now { opacity: 1; transform: scale(1.35); box-shadow: 0 0 2vh var(--gold); }
 
   /* question */
-  .qnum { font-size: 2vw; letter-spacing: .3em; text-transform: uppercase; color: var(--gold); }
-  .qtext { font-family: 'Fraunces', serif; font-size: 5vw; margin: 1.5vh 0 3vh; }
-  .wave { display: flex; gap: .8vw; height: 10vh; align-items: center; margin-bottom: 3vh; }
-  .wave span { width: 1.2vw; height: 20%; background: var(--gold); border-radius: 1vw; transition: height .1s; }
+  .top { display: flex; align-items: center; gap: 3vw; margin-bottom: 2.5vh; }
+  .qtext { font-family: 'Fraunces', serif; font-size: 4.2vw; }
+  .playbtn {
+    width: 11vh; height: 11vh; border-radius: 50%; background: var(--gold); color: #2a1a0e; font-size: 5vh;
+    display: grid; place-items: center; box-shadow: 0 0 0 0 rgba(232,176,74,.6); animation: pulse 1.8s infinite; transition: transform .2s;
+  }
+  .playbtn:hover { transform: scale(1.08); }
+  @keyframes pulse { 70% { box-shadow: 0 0 0 3vh rgba(232,176,74,0); } 100% { box-shadow: 0 0 0 0 rgba(232,176,74,0); } }
+  .wave { display: flex; gap: .6vw; height: 7vh; align-items: center; }
+  .wave span { width: .9vw; height: 15%; background: var(--gold); border-radius: 1vw; transition: height .3s; }
   .wave.playing span { animation: bounce .6s ease-in-out infinite; }
-  @keyframes bounce { 0%,100% { height: 20%; } 50% { height: 100%; } }
-  .wave span:nth-child(2n) { animation-delay: .1s !important; }
-  .wave span:nth-child(3n) { animation-delay: .25s !important; }
-  .wave span:nth-child(5n) { animation-delay: .4s !important; }
+  @keyframes bounce { 0%,100% { height: 15%; } 50% { height: 100%; } }
 
-  .options { display: grid; grid-template-columns: 1fr 1fr; gap: 2.5vh 2vw; width: 90vw; }
-  .opt { display: flex; align-items: center; gap: 2vw; padding: 2.6vh 2vw; border-radius: 2vh; font-size: 2.8vw; font-weight: 800; text-align: left; transition: opacity .5s, transform .5s, filter .5s; }
-  .opt .letter { flex: none; width: 6vh; height: 6vh; border-radius: 50%; background: rgba(0,0,0,.25); display: grid; place-items: center; font-size: 3.5vh; }
+  .options { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.6vw; width: 92vw; perspective: 1200px; }
+  .opt {
+    position: relative; border-radius: 2.2vh; overflow: hidden; text-align: left; cursor: pointer;
+    box-shadow: 0 1vh 3vh rgba(0,0,0,.4);
+    opacity: 0; transform: translateY(6vh) rotateX(-20deg);
+    transition: transform .5s var(--ease), opacity .5s var(--ease), filter .5s, box-shadow .3s;
+  }
+  .opt.in { opacity: 1; transform: none; }
+  .opt.in:hover { transform: translateY(-1.2vh) scale(1.03); box-shadow: 0 2vh 4vh rgba(0,0,0,.55); }
+  .opt .pic { height: 34vh; display: grid; place-items: center; font-size: 13vh; background: rgba(0,0,0,.2); position: relative; }
+  .opt .pic img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  .opt .label { display: flex; align-items: center; gap: 1vw; padding: 2vh 1.2vw; font-size: 1.9vw; font-weight: 800; min-height: 12vh; }
+  .opt .letter { flex: none; width: 5vh; height: 5vh; border-radius: 50%; background: rgba(0,0,0,.25); display: grid; place-items: center; font-size: 2.8vh; }
   .opt:nth-child(1) { background: var(--a); }
   .opt:nth-child(2) { background: var(--b); }
   .opt:nth-child(3) { background: var(--c); color: #2a1a0e; }
   .opt:nth-child(4) { background: var(--d); }
-  .opt.out { opacity: .12; transform: scale(.94); filter: grayscale(1); }
-  .opt.win { transform: scale(1.06); box-shadow: 0 0 0 .6vh var(--cream), 0 0 6vh var(--gold); }
+  .opt.out { opacity: .15 !important; transform: scale(.92) !important; filter: grayscale(1) blur(1px); }
+  .opt.win { transform: scale(1.08) translateY(-1vh) !important; box-shadow: 0 0 0 .6vh var(--cream), 0 0 8vh var(--gold); z-index: 2; }
+  .opt.nope { animation: nope .4s; }
+  @keyframes nope { 20%,60% { transform: translateX(-1.5vw) rotate(-2deg); } 40%,80% { transform: translateX(1.5vw) rotate(2deg); } }
+  .stamp { position: absolute; top: 2vh; right: 1vw; font-size: 7vh; transform: scale(0) rotate(-30deg); transition: transform .4s var(--ease); z-index: 2; }
+  .opt.win .stamp, .opt.nope .stamp, .opt.picked .stamp { transform: scale(1) rotate(0); }
 
-  .countdown { position: fixed; inset: 0; display: none; place-items: center; background: rgba(20,13,8,.75); font-family: 'Fraunces', serif; font-size: 30vh; color: var(--gold); z-index: 5; }
-  .countdown.show { display: grid; }
+  .fact {
+    margin-top: 3vh; font-size: 2.2vw; color: var(--gold-soft); max-width: 80vw;
+    opacity: 0; transform: translateY(2vh); transition: all .6s var(--ease);
+  }
+  .fact.show { opacity: 1; transform: none; }
 
-  .fact { margin-top: 3vh; font-size: 2.4vw; color: var(--gold-soft); min-height: 4vw; opacity: 0; transition: opacity .6s; }
-  .fact.show { opacity: 1; }
+  /* bottom host bar */
+  .bar { position: fixed; bottom: 2vh; left: 50%; transform: translateX(-50%); display: flex; gap: 1vw; z-index: 4; opacity: .35; transition: opacity .3s; }
+  .bar:hover { opacity: 1; }
+  .bar button { padding: 1.2vh 1.6vw; border-radius: 3vh; background: rgba(251,241,221,.12); font-size: 1.3vw; font-weight: 700; transition: background .2s; }
+  .bar button:hover { background: rgba(232,176,74,.4); }
 
-  /* troll */
-  .troll { position: fixed; inset: 0; display: none; place-items: center; z-index: 10; background: rgba(0,0,0,.6); }
-  .troll.show { display: grid; }
-  .troll h2 { font-family: 'Fraunces', serif; font-size: 7vw; color: #fff; text-shadow: 0 0 3vw #d94f3d; }
+  .countdown { position: fixed; inset: 0; display: grid; place-items: center; z-index: 5; pointer-events: none; opacity: 0; transition: opacity .3s; }
+  .countdown.show { opacity: 1; }
+  .countdown div { font-family: 'Fraunces', serif; font-size: 34vh; color: var(--gold); text-shadow: 0 0 6vh rgba(0,0,0,.9); }
+  .countdown div.pop { animation: pop .9s var(--ease); }
+  @keyframes pop { from { transform: scale(1.8); opacity: 0; } 30% { opacity: 1; } to { transform: scale(1); opacity: .85; } }
+
+  .troll { position: fixed; inset: 0; display: grid; place-items: center; z-index: 10; background: rgba(0,0,0,.65); opacity: 0; visibility: hidden; transition: opacity .3s, visibility 0s .3s; }
+  .troll.show { opacity: 1; visibility: visible; transition: opacity .3s; }
+  .troll h2 { font-family: 'Fraunces', serif; font-size: 7vw; color: #fff; text-shadow: 0 0 3vw #d94f3d; transform: scale(.5); transition: transform .5s var(--ease); }
+  .troll.show h2 { transform: scale(1); }
   body.shake { animation: shake .08s linear 8; }
-  @keyframes shake { 0%{transform:translate(0)} 25%{transform:translate(-1.5vw,1vh)} 50%{transform:translate(1.5vw,-1vh)} 75%{transform:translate(-1vw,-1vh)} 100%{transform:translate(0)} }
-  .skull { position: fixed; top: -10vh; font-size: 7vh; z-index: 11; pointer-events: none; animation: fall linear forwards; }
+  @keyframes shake { 25%{transform:translate(-1.5vw,1vh)} 50%{transform:translate(1.5vw,-1vh)} 75%{transform:translate(-1vw,-1vh)} }
+  .rain { position: fixed; top: -10vh; font-size: 7vh; z-index: 11; pointer-events: none; animation: fall linear forwards; }
   @keyframes fall { to { transform: translateY(125vh) rotate(540deg); } }
 
-  .missing { font-size: 1.4vw; color: #ff9b8a; margin-top: 1vh; min-height: 2vw; }
+  .confetti { position: fixed; width: 1.4vh; height: 2.2vh; z-index: 12; pointer-events: none; animation: burst 1.8s cubic-bezier(.2,.6,.4,1) forwards; }
+  @keyframes burst { to { transform: translate(var(--x), var(--y)) rotate(var(--r)); opacity: 0; } }
+
+  .toast { position: fixed; top: 9vh; left: 50%; transform: translate(-50%, -3vh); background: #d94f3d; padding: 1.2vh 2vw; border-radius: 2vh; font-size: 1.4vw; opacity: 0; transition: all .4s; z-index: 30; }
+  .toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+  /* mini saron on finale */
+  .saron { display: flex; gap: 1vw; margin-top: 4vh; }
+  .saron button { width: 8vw; height: 18vh; border-radius: 1.2vh; background: linear-gradient(#f6d58e, #c98a2b); color: #2a1a0e; font-weight: 800; font-size: 2vw; box-shadow: 0 1vh 0 #6b3f12; transition: transform .1s; }
+  .saron button:active, .saron button.hit { transform: translateY(1vh); box-shadow: 0 0 0 #6b3f12; }
 </style>
 </head>
 <body>
 
+<div class="progress" id="progress"></div>
+
 <!-- TITLE -->
 <section class="screen active" id="title">
-  <div class="gong" id="titleGong"></div>
+  <div class="gong" id="titleGong" title="Hit me!"></div>
   <h1>Gamelan in<br>Pop Culture</h1>
   <p class="sub">🎵 Guess where the sound is from!</p>
-  <p class="hint">Press SPACE to start · F for fullscreen</p>
+  <button class="bigbtn" id="startBtn">Let's go 🔔</button>
 </section>
 
 <!-- QUESTION -->
 <section class="screen" id="question">
-  <div class="qnum" id="qnum">Question 1 / 4</div>
-  <div class="qtext">Where is this sound from?</div>
-  <div class="wave" id="wave"></div>
+  <div class="top">
+    <button class="playbtn" id="playBtn" title="Play clip">▶</button>
+    <div class="qtext" id="qtext">Where is this sound from?</div>
+    <div class="wave" id="wave"></div>
+  </div>
   <div class="options" id="options"></div>
   <div class="fact" id="fact"></div>
-  <div class="missing" id="missing"></div>
-  <p class="hint">SPACE play/pause · C countdown · R reveal · T troll · → next · ← back</p>
 </section>
 
 <!-- FINALE -->
 <section class="screen" id="finale">
-  <div class="gong ring" id="finaleGong"></div>
+  <div class="gong" id="finaleGong"></div>
   <h1>Now hear it<br>LIVE 🔔</h1>
-  <p class="sub">Terima kasih! — Permias U-M</p>
+  <p class="sub">Play the saron while you wait 👇 (or keys 1–5)</p>
+  <div class="saron" id="saron"></div>
+  <button class="bigbtn" id="againBtn">Play again ↺</button>
 </section>
 
-<div class="countdown" id="countdown">10</div>
-<div class="troll" id="troll"><h2>💀 BRO REALLY<br>CHOSE THIS 💀</h2></div>
+<div class="bar" id="bar">
+  <button data-act="back">← Back</button>
+  <button data-act="play">▶ Play</button>
+  <button data-act="count">⏱ Countdown</button>
+  <button data-act="reveal">✨ Reveal</button>
+  <button data-act="troll">💀 Troll</button>
+  <button data-act="gong">🔔 Gong</button>
+  <button data-act="next">Next →</button>
+  <button data-act="full">⛶</button>
+</div>
+
+<div class="countdown" id="countdown"><div id="cdNum">10</div></div>
+<div class="troll" id="troll"><h2 id="trollText">💀 BRO REALLY<br>CHOSE THIS 💀</h2></div>
+<div class="toast" id="toast"></div>
 
 <audio id="clip" preload="auto"></audio>
 
 <script>
-// ====== EDIT QUESTIONS HERE ======
-// Put audio files in the /clips folder with these names (mp3, or change the extension).
-// "answer" is the index of the correct option (0 = A, 1 = B, 2 = C, 3 = D).
-// "troll" is the index of the troll option.
+// ===================== EDIT QUESTIONS HERE =====================
+// clip:   audio file in /clips
+// img:    picture in /images (optional — if missing, the emoji shows instead)
+// answer: index of the correct option (0 = A, 1 = B, 2 = C, 3 = D)
+// troll:  index of the troll option
 const QUESTIONS = [
   {
     clip: "clips/akira.mp3",
-    options: ["Ghost in the Shell", "Akira", "Cowboy Bebop", "Your rice cooker when the rice is done 🤡"],
+    options: [
+      { label: "Ghost in the Shell", img: "images/ghost-in-the-shell.jpg", emoji: "🤖" },
+      { label: "Akira",              img: "images/akira.jpg",              emoji: "🏍️" },
+      { label: "Cowboy Bebop",       img: "images/cowboy-bebop.jpg",       emoji: "🚀" },
+      { label: "Your rice cooker when the rice is done", img: "images/rice-cooker.jpg", emoji: "🍚" }
+    ],
     answer: 1, troll: 3,
     fact: "Gamelan plays as Tetsuo's psychic powers awaken — performed by Geinoh Yamashirogumi."
   },
   {
     clip: "clips/zelda.mp3",
-    options: ["Zelda: Echoes of Wisdom", "Kirby", "Minecraft", "Your alarm on a Monday 🤡"],
+    options: [
+      { label: "Zelda: Echoes of Wisdom", img: "images/zelda.jpg",     emoji: "🧝" },
+      { label: "Kirby",                   img: "images/kirby.jpg",     emoji: "🌸" },
+      { label: "Minecraft",               img: "images/minecraft.jpg", emoji: "⛏️" },
+      { label: "Your alarm on a Monday",  img: "images/alarm.jpg",     emoji: "⏰" }
+    ],
     answer: 0, troll: 3,
     fact: "In the Faron region, gamelan is the music of the Deku Scrubs."
   },
   {
     clip: "clips/spirited-away.mp3",
-    options: ["My Neighbor Totoro", "Spirited Away", "Princess Mononoke", "Indomie cooking at 3 AM 🤡"],
+    options: [
+      { label: "My Neighbor Totoro",  img: "images/totoro.jpg",        emoji: "🌳" },
+      { label: "Spirited Away",       img: "images/spirited-away.jpg", emoji: "🐉" },
+      { label: "Princess Mononoke",   img: "images/mononoke.jpg",      emoji: "🐺" },
+      { label: "Indomie cooking at 3 AM", img: "images/indomie.jpg",   emoji: "🍜" }
+    ],
     answer: 1, troll: 3,
     fact: "Studio Ghibli, 2001 — listen for the metallic, bell-like tones."
   },
   {
     clip: "clips/mario.mp3",
-    options: ["Super Mario Odyssey", "Animal Crossing", "Pokémon", "The Diag squirrels forming a band 🤡"],
+    options: [
+      { label: "Super Mario Odyssey", img: "images/mario.jpg",          emoji: "🍄" },
+      { label: "Animal Crossing",     img: "images/animal-crossing.jpg", emoji: "🍃" },
+      { label: "Pokémon",             img: "images/pokemon.jpg",        emoji: "⚡" },
+      { label: "The Diag squirrels forming a band", img: "images/squirrels.jpg", emoji: "🐿️" }
+    ],
     answer: 0, troll: 3,
     fact: "The Lost Kingdom jungle level — Nintendo loves gamelan for jungle worlds."
   }
 ];
-// =================================
+const TROLL_LINES = ["💀 BRO REALLY<br>CHOSE THIS 💀", "🤡 BE SERIOUS 🤡", "💀 NAH YOU'RE<br>TROLLING 💀", "🍚 RICE COOKER<br>HAS SPOKEN 🍚"];
+// ===============================================================
 
 const $ = id => document.getElementById(id);
 const clip = $("clip");
-let idx = -1;          // -1 = title, QUESTIONS.length = finale
-let revealed = false;
-let countdownTimer = null;
+let idx = -1, revealed = false, cdTimer = null, busy = false;
 
-// sound wave bars
-for (let i = 0; i < 24; i++) $("wave").appendChild(document.createElement("span"));
+// ---------- setup ----------
+for (let i = 0; i < 18; i++) $("wave").appendChild(Object.assign(document.createElement("span"), { style: `animation-delay:${(i % 5) * .1}s` }));
+QUESTIONS.forEach(() => $("progress").appendChild(document.createElement("span")));
+const SARON = [[1, 294], [2, 330], [3, 370], [5, 440], [6, 494]]; // pelog-ish notes
+SARON.forEach(([n, f], i) => {
+  const b = document.createElement("button"); b.textContent = n;
+  b.onclick = () => { metal(f); b.classList.add("hit"); setTimeout(() => b.classList.remove("hit"), 120); };
+  $("saron").appendChild(b);
+});
+setInterval(() => {
+  const n = document.createElement("div"); n.className = "note";
+  n.textContent = ["♪", "♫", "♬", "🔔"][Math.floor(Math.random() * 4)];
+  n.style.left = Math.random() * 100 + "vw"; n.style.animationDuration = 8 + Math.random() * 6 + "s";
+  document.body.appendChild(n); setTimeout(() => n.remove(), 15000);
+}, 1400);
 
-// --- synthesized sounds (no files needed) ---
+// ---------- sounds (synthesized, no files needed) ----------
 let actx;
-function ctx() { return actx || (actx = new (window.AudioContext || window.webkitAudioContext)()); }
-function gong() {
+const ctx = () => actx || (actx = new (window.AudioContext || window.webkitAudioContext)());
+function partials(list, dur, vol) {
   const c = ctx(), t = c.currentTime, out = c.createGain();
-  out.gain.setValueAtTime(0.9, t); out.gain.exponentialRampToValueAtTime(0.001, t + 4);
-  out.connect(c.destination);
-  [[110, 1], [220, .5], [293, .35], [415, .2], [554, .12]].forEach(([f, g]) => {
-    const o = c.createOscillator(), gg = c.createGain();
-    o.frequency.setValueAtTime(f, t); o.frequency.exponentialRampToValueAtTime(f * .985, t + 4);
-    gg.gain.value = g; o.connect(gg).connect(out); o.start(t); o.stop(t + 4);
-  });
+  out.gain.setValueAtTime(vol, t); out.gain.exponentialRampToValueAtTime(.001, t + dur); out.connect(c.destination);
+  list.forEach(([f, g]) => { const o = c.createOscillator(), gg = c.createGain(); o.frequency.value = f; gg.gain.value = g; o.connect(gg).connect(out); o.start(t); o.stop(t + dur); });
 }
-function tick() {
+function gongSound() { partials([[98, 1], [196, .5], [262, .35], [392, .2], [523, .1]], 4, .8); }
+function metal(f) { partials([[f, 1], [f * 2.76, .3], [f * 5.4, .1]], 1.5, .5); }
+function blip(f1, f2, dur, type = "triangle", vol = .4) {
   const c = ctx(), t = c.currentTime, o = c.createOscillator(), g = c.createGain();
-  o.type = "triangle"; o.frequency.setValueAtTime(180, t); o.frequency.exponentialRampToValueAtTime(60, t + .15);
-  g.gain.setValueAtTime(.6, t); g.gain.exponentialRampToValueAtTime(.001, t + .2);
-  o.connect(g).connect(c.destination); o.start(t); o.stop(t + .2);
+  o.type = type; o.frequency.setValueAtTime(f1, t); o.frequency.exponentialRampToValueAtTime(f2, t + dur);
+  g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(.001, t + dur);
+  o.connect(g).connect(c.destination); o.start(t); o.stop(t + dur);
 }
-function bonk() {
-  const c = ctx(), t = c.currentTime, o = c.createOscillator(), g = c.createGain();
-  o.type = "square"; o.frequency.setValueAtTime(300, t); o.frequency.exponentialRampToValueAtTime(70, t + .4);
-  g.gain.setValueAtTime(.3, t); g.gain.exponentialRampToValueAtTime(.001, t + .45);
-  o.connect(g).connect(c.destination); o.start(t); o.stop(t + .45);
+const tick = () => blip(200, 70, .15);
+const bonk = () => blip(320, 60, .4, "square", .25);
+const whoosh = () => blip(120, 900, .35, "sine", .12);
+
+// ---------- effects ----------
+function gong(el) {
+  gongSound();
+  const r = (el || document.querySelector(".screen.active .gong") || document.body).getBoundingClientRect();
+  const rp = document.createElement("div"); rp.className = "ripple";
+  rp.style.left = r.left + r.width / 2 + "px"; rp.style.top = r.top + r.height / 2 + "px"; rp.style.transform = "translate(-50%,-50%)";
+  document.body.appendChild(rp); setTimeout(() => rp.remove(), 1300);
+  if (el) { el.classList.remove("hit"); void el.offsetWidth; el.classList.add("hit"); }
+}
+function confetti(fromEl) {
+  const r = fromEl.getBoundingClientRect(), cx = r.left + r.width / 2, cy = r.top + r.height / 2;
+  const colors = ["#e8b04a", "#d94f3d", "#3d8bd9", "#4caf6e", "#fbf1dd"];
+  for (let i = 0; i < 90; i++) {
+    const p = document.createElement("div"); p.className = "confetti";
+    const a = Math.random() * Math.PI * 2, d = 20 + Math.random() * 50;
+    p.style.left = cx + "px"; p.style.top = cy + "px"; p.style.background = colors[i % colors.length];
+    p.style.setProperty("--x", Math.cos(a) * d + "vw"); p.style.setProperty("--y", Math.sin(a) * d + 20 + "vh");
+    p.style.setProperty("--r", Math.random() * 900 + "deg");
+    document.body.appendChild(p); setTimeout(() => p.remove(), 1900);
+  }
+}
+function toast(msg) { $("toast").textContent = msg; $("toast").classList.add("show"); clearTimeout(toast.t); toast.t = setTimeout(() => $("toast").classList.remove("show"), 3500); }
+
+// ---------- screens ----------
+function go(id, after) {
+  const cur = document.querySelector(".screen.active");
+  whoosh();
+  if (cur) { cur.classList.add("leaving"); cur.classList.remove("active"); setTimeout(() => cur.classList.remove("leaving"), 600); }
+  setTimeout(() => { $(id).classList.add("active"); after && after(); }, 250);
+}
+function updateProgress() {
+  [...$("progress").children].forEach((s, i) => { s.className = i < idx ? "done" : i === idx ? "now" : ""; });
+  $("progress").style.opacity = idx >= 0 && idx < QUESTIONS.length ? 1 : 0;
 }
 
-function show(id) {
-  document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
-  $(id).classList.add("active");
-}
+function stopClip() { clip.pause(); $("wave").classList.remove("playing"); $("playBtn").textContent = "▶"; }
 
-function stopClip() { clip.pause(); $("wave").classList.remove("playing"); }
-
-function loadQuestion() {
-  stopClip(); clearCountdown(); revealed = false;
-  if (idx < 0) { show("title"); return; }
-  if (idx >= QUESTIONS.length) { show("finale"); gong(); return; }
+function load(newIdx) {
+  if (busy) return; busy = true; setTimeout(() => busy = false, 700);
+  stopClip(); clearCd(); revealed = false; idx = newIdx; updateProgress();
+  if (idx < 0) return go("title");
+  if (idx >= QUESTIONS.length) return go("finale", () => { gong($("finaleGong")); confetti($("finaleGong")); });
   const q = QUESTIONS[idx];
-  $("qnum").textContent = `Question ${idx + 1} / ${QUESTIONS.length}`;
-  $("options").innerHTML = q.options.map((o, i) =>
-    `<div class="opt"><span class="letter">${"ABCD"[i]}</span><span>${o}</span></div>`).join("");
+  $("qtext").textContent = `Q${idx + 1}: Where is this sound from?`;
   $("fact").textContent = q.fact; $("fact").classList.remove("show");
-  $("missing").textContent = "";
-  clip.src = q.clip; clip.currentTime = 0;
-  show("question");
+  $("options").innerHTML = q.options.map((o, i) => `
+    <div class="opt" data-i="${i}">
+      <div class="pic">${o.emoji}<img src="${o.img}" alt="" onerror="this.remove()"></div>
+      <div class="label"><span class="letter">${"ABCD"[i]}</span><span>${o.label}${i === q.troll ? " 🤡" : ""}</span></div>
+      <div class="stamp">${i === q.answer ? "✅" : i === q.troll ? "🤡" : "❌"}</div>
+    </div>`).join("");
+  [...document.querySelectorAll(".opt")].forEach(el => el.onclick = () => pick(+el.dataset.i));
+  clip.src = q.clip;
+  go("question", () => document.querySelectorAll(".opt").forEach((el, i) => setTimeout(() => { el.classList.add("in"); tick(); }, 150 + i * 130)));
 }
 
 function togglePlay() {
-  if (idx < 0 || idx >= QUESTIONS.length) return;
+  if (idx < 0) return load(0);
+  if (idx >= QUESTIONS.length) return;
   if (clip.paused) {
-    clip.play().then(() => $("wave").classList.add("playing"))
-      .catch(() => { $("missing").textContent = `⚠ Couldn't play ${QUESTIONS[idx].clip} — add the file to the clips folder.`; });
+    clip.play().then(() => { $("wave").classList.add("playing"); $("playBtn").textContent = "❚❚"; })
+      .catch(() => toast(`⚠ Missing audio: ${QUESTIONS[idx].clip} — add it to the clips folder`));
   } else stopClip();
 }
-clip.addEventListener("ended", () => $("wave").classList.remove("playing"));
-clip.addEventListener("error", () => { if (idx >= 0 && idx < QUESTIONS.length) $("missing").textContent = `⚠ Missing audio: ${QUESTIONS[idx].clip}`; });
+clip.addEventListener("ended", stopClip);
+
+// clicking an option
+function pick(i) {
+  if (revealed) return;
+  const q = QUESTIONS[idx], el = document.querySelectorAll(".opt")[i];
+  if (i === q.troll) return troll();
+  if (i === q.answer) return reveal();
+  bonk(); el.classList.remove("nope"); void el.offsetWidth; el.classList.add("nope", "out");
+}
 
 function reveal() {
   if (revealed || idx < 0 || idx >= QUESTIONS.length) return;
-  revealed = true; stopClip(); clearCountdown();
+  revealed = true; stopClip(); clearCd();
   const q = QUESTIONS[idx], opts = [...document.querySelectorAll(".opt")];
-  const wrong = opts.map((_, i) => i).filter(i => i !== q.answer);
-  wrong.forEach((i, n) => setTimeout(() => { opts[i].classList.add("out"); tick(); }, 700 * (n + 1)));
-  setTimeout(() => { opts[q.answer].classList.add("win"); gong(); $("fact").classList.add("show"); }, 700 * (wrong.length + 1) + 300);
+  const wrong = opts.map((_, i) => i).filter(i => i !== q.answer && !opts[i].classList.contains("out"));
+  wrong.forEach((i, n) => setTimeout(() => { opts[i].classList.add("out"); tick(); }, 450 * (n + 1)));
+  setTimeout(() => {
+    opts[q.answer].classList.add("win"); gongSound(); confetti(opts[q.answer]); $("fact").classList.add("show");
+  }, 450 * (wrong.length + 1) + 200);
 }
 
 function troll() {
   if (idx < 0 || idx >= QUESTIONS.length) return;
-  bonk();
+  bonk(); setTimeout(bonk, 180);
+  const t = document.querySelectorAll(".opt")[QUESTIONS[idx].troll];
+  if (t && !revealed) { t.classList.add("nope"); setTimeout(() => t.classList.remove("nope"), 400); }
+  $("trollText").innerHTML = TROLL_LINES[Math.floor(Math.random() * TROLL_LINES.length)];
   document.body.classList.remove("shake"); void document.body.offsetWidth; document.body.classList.add("shake");
   $("troll").classList.add("show");
-  for (let i = 0; i < 40; i++) {
-    const s = document.createElement("div");
-    s.className = "skull"; s.textContent = Math.random() < .8 ? "💀" : "🤡";
-    s.style.left = Math.random() * 100 + "vw";
-    s.style.animationDuration = 1.5 + Math.random() * 2 + "s";
-    s.style.animationDelay = Math.random() * .8 + "s";
+  for (let i = 0; i < 45; i++) {
+    const s = document.createElement("div"); s.className = "rain"; s.textContent = Math.random() < .75 ? "💀" : "🤡";
+    s.style.left = Math.random() * 100 + "vw"; s.style.animationDuration = 1.5 + Math.random() * 2 + "s"; s.style.animationDelay = Math.random() * .8 + "s";
     document.body.appendChild(s); setTimeout(() => s.remove(), 4500);
   }
-  setTimeout(() => $("troll").classList.remove("show"), 2500);
+  setTimeout(() => $("troll").classList.remove("show"), 2300);
 }
 
-function clearCountdown() { clearInterval(countdownTimer); countdownTimer = null; $("countdown").classList.remove("show"); }
+function clearCd() { clearInterval(cdTimer); cdTimer = null; $("countdown").classList.remove("show"); }
 function countdown() {
   if (revealed || idx < 0 || idx >= QUESTIONS.length) return;
-  if (countdownTimer) { clearCountdown(); return; }
-  let n = 10; $("countdown").textContent = n; $("countdown").classList.add("show"); tick();
-  countdownTimer = setInterval(() => {
-    n--;
-    if (n <= 0) { clearCountdown(); reveal(); return; }
-    $("countdown").textContent = n; tick();
-  }, 1000);
+  if (cdTimer) return clearCd();
+  let n = 10;
+  const show = () => { const d = $("cdNum"); d.textContent = n; d.classList.remove("pop"); void d.offsetWidth; d.classList.add("pop"); tick(); };
+  $("countdown").classList.add("show"); show();
+  cdTimer = setInterval(() => { n--; if (n <= 0) { clearCd(); reveal(); } else show(); }, 1000);
 }
+
+function fullscreen() { document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen(); }
+
+// ---------- controls ----------
+const ACTIONS = {
+  back: () => idx > -1 && load(idx - 1), next: () => idx < QUESTIONS.length && load(idx + 1),
+  play: togglePlay, count: countdown, reveal, troll, gong: () => gong(document.querySelector(".screen.active .gong")), full: fullscreen
+};
+document.querySelectorAll(".bar button").forEach(b => b.onclick = () => ACTIONS[b.dataset.act]());
+$("startBtn").onclick = () => { gong($("titleGong")); load(0); };
+$("againBtn").onclick = () => load(0);
+$("playBtn").onclick = togglePlay;
+$("titleGong").onclick = () => gong($("titleGong"));
+$("finaleGong").onclick = () => { gong($("finaleGong")); confetti($("finaleGong")); };
 
 document.addEventListener("keydown", e => {
   const k = e.key.toLowerCase();
-  if (k === " ") { e.preventDefault(); if (idx < 0) { idx = 0; gong(); loadQuestion(); } else togglePlay(); }
-  else if (k === "arrowright" || k === "n") { if (idx < QUESTIONS.length) { idx++; loadQuestion(); } }
-  else if (k === "arrowleft" || k === "b") { if (idx > -1) { idx--; loadQuestion(); } }
-  else if (k === "r") reveal();
-  else if (k === "t") troll();
-  else if (k === "c") countdown();
-  else if (k === "g") gong();
-  else if (k === "f") { document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen(); }
+  if (idx >= QUESTIONS.length && "12345".includes(k) && k) { $("saron").children["12345".indexOf(k)].click(); return; }
+  const map = { " ": "play", arrowright: "next", n: "next", arrowleft: "back", b: "back", r: "reveal", t: "troll", c: "count", g: "gong", f: "full" };
+  if (map[k]) { e.preventDefault(); ACTIONS[map[k]](); }
 });
-$("titleGong").addEventListener("click", gong);
 </script>
 </body>
 </html>

@@ -12,9 +12,13 @@ Put audio files in the `clips/` folder with these names:
 - `clips/spirited-away.mp3`
 - `clips/mario.mp3`
 
-Trim them to ~10–15 seconds of the gamelan part. To change questions, edit the `QUESTIONS` list near the top of the `<script>` in `index.html`.
+## Add pictures (optional)
+Put images in `images/` with the names listed in `QUESTIONS` (e.g. `images/akira.jpg`). If a picture is missing, a big emoji shows instead.
+
+Trim the clips to ~10–15 seconds of the gamelan part. To change questions, edit the `QUESTIONS` list near the top of the `<script>` in `index.html`.
 
 ## Host controls
+Click an option with the mouse: correct = confetti + gong, wrong = shake, troll = 💀 attack. Hover the bottom bar for buttons, or use keys:
 | Key | Action |
 |---|---|
 | Space | Start / play-pause clip |
