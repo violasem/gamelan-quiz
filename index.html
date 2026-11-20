@@ -638,7 +638,7 @@ function openLearn() {
     `<div class="meta">${L.chips.map((c, i) => `<span class="chip${i === 0 ? " hot" : ""}">${c}</span>`).join("")}</div>`;
   const vid = document.querySelector("#media video"); if (vid) vid.volume = L.volume ?? 0.3;
   $("lkicker").textContent = `Fun fact ${String(idx + 1).padStart(2, "0")} · Gamelan in the wild`;
-  $("ltitle").textContent = L.title; $("g101").textContent = L.g101 || "";
+  $("ltitle").textContent = L.title; $("ltitle").style.fontSize = L.title.length > 14 ? "3.6vw" : ""; $("g101").textContent = L.g101 || "";
   $("lsub").textContent = L.brings;
   $("cards").innerHTML = L.cards.map(c => `<div class="fl"><i></i><b>${c.front}</b><span>${c.back}</span></div>`).join("");
   $("nextBtn").textContent = idx === QUESTIONS.length - 1 ? "Finish →" : "Next question →";
