@@ -13,7 +13,7 @@ Put audio files in the `clips/` folder with these names:
 - `clips/mario.mp3`
 
 ## Add pictures (optional)
-Put images in `images/` with the names listed in `QUESTIONS` (e.g. `images/akira.jpg`). If a picture is missing, a big emoji shows instead.
+Put images in `images/` with the names listed in `QUESTIONS` (e.g. `images/akira.svg`). If a picture is missing, a big emoji shows instead.
 
 Trim the clips to ~10–15 seconds of the gamelan part. To change questions, edit the `QUESTIONS` list near the top of the `<script>` in `index.html`.
 
