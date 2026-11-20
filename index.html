@@ -99,8 +99,8 @@
     opacity: 0; transform: translateY(-1vh); transition: all .4s var(--ease); }
   .tile.win .tag, .tile.nope .tag { opacity: 1; transform: none; }
 
-  .dots { position: fixed; bottom: 5vh; left: 4.5vw; display: flex; gap: .7vw; z-index: 3; transition: opacity .4s; }
-  .dots i { width: 2.4vw; height: .7vh; border-radius: 1vh; background: var(--line); transition: background .4s; }
+  .dots { position: fixed; top: 6.6vh; left: 20vw; display: flex; gap: .7vw; z-index: 3; transition: opacity .4s; }
+  .dots i { width: 1.6vw; height: .7vh; border-radius: 1vh; background: var(--line); transition: background .4s; }
   .dots i.done { background: var(--muted); } .dots i.now { background: var(--c); }
 
   /* ---------- finale ---------- */
@@ -153,17 +153,30 @@
   .recap img { width: 100%; height: 13vh; object-fit: cover; display: block; }
   .recap span { display: block; padding: 1.2vh .9vw; font-size: 1.1vw; font-weight: 700; }
 
+  .g101 { margin-top: 3vh; padding: 2vh 1.4vw; border-left: .5vh solid var(--c); background: var(--panel); border-radius: 0 1.2vh 1.2vh 0; font-size: 1.6vw; font-weight: 600; line-height: 1.3; }
+  .g101 .label { display: block; color: var(--c); margin-bottom: .6vh; }
+
+  /* live music animation */
+  .viz { position: fixed; left: 0; width: 31vw; bottom: 0; height: 22vh; pointer-events: none; opacity: 0; transition: opacity .6s; z-index: 0; }
+  body.playing .viz { opacity: 1; }
+  .side { position: relative; }
+  .side > *:not(.viz) { position: relative; z-index: 1; }
+  .play { box-shadow: 0 0 0 calc(var(--lvl, 0) * 3vh) rgba(255,190,61,.25); }
+  .notes { position: fixed; inset: 0; pointer-events: none; z-index: 2; overflow: hidden; }
+  .mnote { position: absolute; font-size: 3.4vh; font-weight: 800; animation: rise 2.6s ease-out forwards; }
+  @keyframes rise { from { transform: translateY(0) scale(.6); opacity: 0; } 15% { opacity: 1; } to { transform: translateY(-40vh) translateX(var(--dx)) scale(1.1) rotate(var(--rot)); opacity: 0; } }
+
   /* ---------- learn page ---------- */
-  #learn { display: grid; grid-template-columns: 44vw 1fr; gap: 3.5vw; padding: 7vh 4.5vw 9vh; }
+  #learn { display: grid; grid-template-columns: 44vw 1fr; gap: 3.5vw; padding: 6vh 4.5vw 6vh; }
   .media { position: relative; border-radius: 2.4vh; overflow: hidden; background: var(--panel); }
   .media img, .media video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
   .media .meta { position: absolute; left: 1.4vw; bottom: 2vh; display: flex; gap: .6vw; flex-wrap: wrap; }
   .chip { padding: .9vh 1vw; border-radius: 10vh; background: var(--bg); font-family: var(--mono); font-size: 1.5vh; letter-spacing: .08em; text-transform: uppercase; }
   .chip.hot { background: var(--c); color: var(--bg); }
   .info { display: flex; flex-direction: column; min-height: 0; }
-  .ltitle { font-size: 6.5vw; font-weight: 800; line-height: .9; letter-spacing: -.04em; margin: 1.5vh 0 2vh; }
+  .ltitle { font-size: 5.6vw; font-weight: 800; line-height: .9; letter-spacing: -.04em; margin: 1.5vh 0 2vh; }
   .lsub { font-size: 2.4vw; font-weight: 600; color: var(--muted); line-height: 1.35; max-width: 44vw; }
-  .cards { display: flex; flex-direction: column; gap: 2.6vh; margin-top: 5vh; }
+  .cards { display: flex; flex-direction: column; gap: 2vh; margin-top: 3.5vh; }
   .fl { display: grid; grid-template-columns: 1vw 13vw 1fr; gap: 1.4vw; align-items: baseline; font-size: 2vw; font-weight: 600; line-height: 1.3; }
   .fl i { width: 1vw; height: 1vw; border-radius: 50%; align-self: center; }
   .fl:nth-child(1) i { background: var(--a); } .fl:nth-child(2) i { background: var(--b); } .fl:nth-child(3) i { background: var(--d); }
@@ -200,6 +213,7 @@
 <!-- QUESTION -->
 <section class="screen" id="question">
   <aside class="side">
+    <canvas class="viz" id="viz"></canvas>
     <p class="label" id="qlabel">Question 01 of 04</p>
     <div class="qnum" id="qnum">01</div>
     <h2 class="qhead">Where is this<br>sound from?</h2>
@@ -225,6 +239,7 @@
     <h1 class="ltitle rise d1" id="ltitle"></h1>
     <p class="lsub rise d2" id="lsub"></p>
     <div class="cards rise d3" id="cards"></div>
+    <div class="g101 rise d4"><span class="label">Gamelan 101</span><span id="g101"></span></div>
     <div class="listen rise d4" style="justify-content:flex-end">
       <button class="nextq" id="nextBtn">Next question →</button>
     </div>
@@ -258,6 +273,7 @@
 <div class="count" id="count"><div id="countNum">10</div></div>
 <div class="troll" id="troll"><div><p class="label">You picked</p><h2 id="trollText">Really?</h2></div></div>
 <div class="toast" id="toast"></div>
+<div class="notes" id="notes"></div>
 
 <audio id="clip" preload="auto"></audio>
 
@@ -270,7 +286,7 @@
 const QUESTIONS = [
   {
     clip: "clips/akiramusic.mp4",
-    listen: "Clanging bronze bars and a rising chant.", hint: "1988 · motorcycles · Neo-Tokyo",
+    listen: "Clanging bronze bars and a rising chant.", hint: "It's a movie, not a show.",
     options: [
       { label: "Ghost in the Shell", img: "images/cowboyintheshell.gif" },
       { label: "Akira",              img: "images/akira.gif" },
@@ -282,7 +298,7 @@ const QUESTIONS = [
   },
   {
     clip: "clips/zeldamusic.mp4",
-    listen: "Bell-like tones bouncing between two parts.", hint: "2024 · Nintendo · the princess is the hero",
+    listen: "Bell-like tones bouncing between two parts.", hint: "It's a video game.",
     options: [
       { label: "Zelda: Echoes of Wisdom", img: "images/zeldaa.jpeg" },
       { label: "Kirby",                   img: "images/Kirby Gif.gif" },
@@ -294,7 +310,7 @@ const QUESTIONS = [
   },
   {
     clip: "clips/ghibli.mp4",
-    listen: "Metallic, shimmering tones under the melody.", hint: "Studio Ghibli · a bathhouse for spirits",
+    listen: "Metallic, shimmering tones under the melody.", hint: "It won an Oscar.",
     options: [
       { label: "My Neighbor Totoro",      img: "images/totoro.gif" },
       { label: "Spirited Away",           img: "images/spritedaway.gif" },
@@ -306,7 +322,7 @@ const QUESTIONS = [
   },
   {
     clip: "clips/supermario.mp4",
-    listen: "Gongs and bright metal keys in a jungle groove.", hint: "Nintendo · a hat that can possess things",
+    listen: "Gongs and bright metal keys in a jungle groove.", hint: "You've probably played it.",
     options: [
       { label: "Super Mario Odyssey", img: "images/mario.jpeg" },
       { label: "Animal Crossing",     img: "images/animalcrossing.jpeg" },
@@ -322,7 +338,7 @@ const QUESTIONS = [
 // cards: click to flip. front = teaser, back = the fact
 const LEARN = [
   {
-    title: "Akira", media: "images/akirameme.clip.mp4",
+    title: "Akira", g101: "Gamelan comes from Java and Bali, Indonesia. Most of it is bronze.", media: "images/akirameme.clip.mp4", volume: 0.15,
     chips: ["Anime", "1988"],
     sub: "Anime's most famous gamelan soundtrack.",
     cards: [
@@ -332,7 +348,7 @@ const LEARN = [
     ]
   },
   {
-    title: "Zelda: Echoes of Wisdom", media: "images/zeldaa.jpeg",
+    title: "Zelda: Echoes of Wisdom", g101: "Gamelan uses two tunings: slendro (5 notes) and pelog (7 notes).", media: "images/zeldaa.jpeg",
     chips: ["Game", "2024"],
     sub: "Gamelan is the sound of the Deku Scrubs.",
     cards: [
@@ -342,7 +358,7 @@ const LEARN = [
     ]
   },
   {
-    title: "Spirited Away", media: "images/spritedaway.gif",
+    title: "Spirited Away", g101: "The big gong marks the end of each musical cycle.", media: "images/spritedaway.gif",
     chips: ["Anime", "2001"],
     sub: "Listen for the bell-like, metallic tones.",
     cards: [
@@ -352,7 +368,7 @@ const LEARN = [
     ]
   },
   {
-    title: "Super Mario Odyssey", media: "images/mario.jpeg",
+    title: "Super Mario Odyssey", g101: "In Balinese kotekan, two players each play half a melody that interlocks.", media: "images/mario.jpeg",
     chips: ["Game", "2017"],
     sub: "Gamelan in the Lost Kingdom jungle.",
     cards: [
@@ -421,7 +437,7 @@ function show(id, after) {
 }
 function updateDots() {
   [...$("dots").children].forEach((d, i) => d.className = i < idx ? "done" : i === idx ? "now" : "");
-  $("dots").style.opacity = idx >= 0 && idx < QUESTIONS.length ? 1 : 0;
+  $("dots").style.opacity = idx >= 0 && idx < QUESTIONS.length && !onLearn ? 1 : 0;
 }
 function setIcon(playing) {
   $("playIcon").innerHTML = playing ? '<path d="M6 4h4v16H6zM14 4h4v16h-4z"/>' : '<path d="M7 4.5v15l13-7.5z"/>';
@@ -461,6 +477,47 @@ function togglePlay() {
   } else stopClip();
 }
 clip.addEventListener("ended", stopClip);
+// ---------- live music animation ----------
+let analyser, freq, srcNode, vizOn = false, lastNote = 0;
+function setupAnalyser() {
+  if (analyser || location.protocol === "file:") return; // file:// would mute the audio, so use the fake animation there
+  try {
+    const c = ctx(); srcNode = c.createMediaElementSource(clip);
+    analyser = c.createAnalyser(); analyser.fftSize = 128; analyser.smoothingTimeConstant = .8;
+    srcNode.connect(analyser).connect(c.destination); freq = new Uint8Array(analyser.frequencyBinCount);
+  } catch (e) { analyser = null; }
+}
+function spawnNote(level) {
+  const n = document.createElement("div"); n.className = "mnote";
+  n.textContent = ["♪", "♫", "♬", "♩"][Math.floor(Math.random() * 4)];
+  n.style.color = COLORS[Math.floor(Math.random() * 4)];
+  n.style.left = 5 + Math.random() * 25 + "vw"; n.style.top = 75 + Math.random() * 15 + "vh";
+  n.style.setProperty("--dx", (Math.random() * 10 - 5) + "vw"); n.style.setProperty("--rot", (Math.random() * 60 - 30) + "deg");
+  $("notes").appendChild(n); setTimeout(() => n.remove(), 2700);
+}
+function drawViz(t) {
+  if (!vizOn) return;
+  const cv = $("viz"), g = cv.getContext("2d");
+  cv.width = cv.clientWidth; cv.height = cv.clientHeight;
+  let level = 0;
+  const N = 32, w = cv.width / N;
+  for (let i = 0; i < N; i++) {
+    let v;
+    if (analyser) { if (i === 0) analyser.getByteFrequencyData(freq); v = freq[i + 2] / 255; }
+    else v = (Math.sin(t / 180 + i * .6) + 1) / 2 * .7;
+    level += v;
+    const h = Math.max(4, v * cv.height);
+    g.fillStyle = COLORS[i % 4]; g.globalAlpha = .55;
+    g.beginPath(); g.roundRect(i * w + w * .18, cv.height - h, w * .64, h, w * .3); g.fill();
+  }
+  level /= N;
+  document.body.style.setProperty("--lvl", level.toFixed(3));
+  if (level > .35 && t - lastNote > 280) { spawnNote(level); lastNote = t; }
+  requestAnimationFrame(drawViz);
+}
+clip.addEventListener("play", () => { setupAnalyser(); ctx().resume(); vizOn = true; document.body.classList.add("playing"); requestAnimationFrame(drawViz); });
+clip.addEventListener("pause", () => { vizOn = false; document.body.classList.remove("playing"); document.body.style.setProperty("--lvl", 0); });
+
 clip.addEventListener("timeupdate", () => {
   if (clip.duration) $("ring").style.strokeDashoffset = RING_LEN * (1 - clip.currentTime / clip.duration);
 });
@@ -514,15 +571,16 @@ function openLearn() {
   const L = LEARN[idx], q = QUESTIONS[idx];
   const src = encodeURI(L.media || q.options[q.answer].img);
   $("media").innerHTML = (/\.(mp4|webm|mov)$/i.test(L.media || "")
-      ? `<video src="${src}" autoplay loop playsinline controls></video>`
+      ? `<video src="${src}" autoplay loop playsinline></video>`
       : `<img src="${src}" alt="">`) +
     `<div class="meta">${L.chips.map((c, i) => `<span class="chip${i === 0 ? " hot" : ""}">${c}</span>`).join("")}</div>`;
+  const vid = document.querySelector("#media video"); if (vid) vid.volume = L.volume ?? 0.3;
   $("lkicker").textContent = `Fun fact ${String(idx + 1).padStart(2, "0")} · Gamelan in the wild`;
-  $("ltitle").textContent = L.title;
+  $("ltitle").textContent = L.title; $("g101").textContent = L.g101 || "";
   $("lsub").textContent = L.sub;
   $("cards").innerHTML = L.cards.map(c => `<div class="fl"><i></i><b>${c.front}</b><span>${c.back}</span></div>`).join("");
   $("nextBtn").textContent = idx === QUESTIONS.length - 1 ? "Finish →" : "Next question →";
-  show("learn");
+  updateDots(); show("learn");
 }
 function closeLearn() { onLearn = false; const v = document.querySelector("#media video"); v && v.pause(); }
 $("moreBtn").onclick = openLearn;
